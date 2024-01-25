@@ -121,7 +121,7 @@ runcmd:
   - systemctl start jobbergate-agent
 EOF
 
-  mkdir -p $HOME/democluster
+  mkdir -p $HOME/democluster/tmp
 
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4GB \
