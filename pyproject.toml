@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "image-factory"
+version = "0.1.0"
+description = "The official image builder project by Omnivector Solutions"
+authors = ["matheushent <me@mtosta.dev>, jamesbeedy <james@omnivector.solutions>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+craft-providers = "^1.14.1"
+typer = "^0.9.0"
+rich = "^13.5.2"
+
+[tool.poetry.dev-dependencies]
+ruff = "^0.0.282"
+mypy = "^1.4.1"
+black = "^23.7.0"
+
+[tool.poetry.group.dev.dependencies]
+types-pyyaml = "^6.0.12.11"
+
+[tool.black]
+line-length = 110
+src = ["image_factory"]
+
+[tool.ruff]
+line-length = 110
+select = ["E", "W", "F", "C", "N", "D", "I001"]
+extend-exclude = ["__pycache__", "*.egg_info", "__init__.py"]
+ignore = ["D203", "D212"]
+
+[tool.mypy]
+follow_imports = "silent"
+ignore_missing_imports = true
+
+[tool.poetry.scripts]
+image-factory = "image_factory.main:app"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,52 @@
+name: 'Linter'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    name: "Lint code"
+    runs-on: "ubuntu-22.04"
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Set up Poetry
+        uses: Gr1N/setup-poetry@v8
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+
+      - name: Cache Mypy dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.mypy_cache
+          key: ${{ runner.os }}-mypy-${{ hashFiles('.mypy_cache/CACHEDIR.TAG') }}
+
+      - name: Cache Ruff dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.ruff_cache
+          key: ${{ runner.os }}-ruff-${{ hashFiles('.ruff_cache/CACHEDIR.TAG') }}
+
+      - name: Run the linter checker
+        run: |
+          poetry run mypy image_factory --pretty
+          poetry run ruff check image_factory

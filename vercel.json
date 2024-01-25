@@ -1,0 +1,32 @@
+{
+    "buildCommand": null,
+    "installCommand": null,
+    "trailingSlash": false,
+    "outputDirectory": "public-scripts",
+    "headers": [
+      {
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain; charset=utf-8"
+          }
+        ],
+        "source": "/"
+      },
+      {
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain; charset=utf-8"
+          }
+        ],
+        "source": "/(.+)\\.sh"
+      }
+    ],
+    "rewrites": [
+      {
+        "destination": "/deploy-democluster.sh",
+        "source": "/"
+      }
+    ]
+  }
