@@ -121,8 +121,11 @@ runcmd:
   - systemctl start jobbergate-agent
 EOF
 
+  mkdir -p $HOME/democluster
+
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4GB \
+  --mount=$HOME/democluster:/home/ubuntu/democluster
   -ndemocluster \
   $IMAGE_ORIGIN \
   --cloud-init -
