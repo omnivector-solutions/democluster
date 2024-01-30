@@ -12,27 +12,13 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-      - name: Setup lxd controller
-        run: |
-          sudo snap install lxd --channel=latest/stable
-          sudo snap refresh lxd --channel=latest/stable
-          sudo lxd waitready
-          sudo lxd init --auto
-          sudo chmod a+wr /var/snap/lxd/common/lxd/unix.socket
-          lxc network set lxdbr0 ipv6.address none
-          sudo usermod -a -G lxd $USER
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          architecture: "x64"
-      - name: Setup poetry
-        uses: Gr1N/setup-poetry@v8
+
       - name: Install image-factory
         run: |
           poetry env use "3.11"
           poetry install
-      - name: Build democluster image
+
+      - name: Build democluster
         run: |
           poetry run image-factory build democluster
 
@@ -42,7 +28,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
-            sudo apt install awscli -y
             aws s3 sync democluster/final \
               s3://omnivector-public-assets/cloud-images/democluster/latest \
               --acl public-read --follow-symlinks --delete 1> /dev/null
