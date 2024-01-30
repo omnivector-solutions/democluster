@@ -1,32 +1,5 @@
 #cloud-config
 write_files:
-
-  - path: /usr/share/keyrings/apptainer.asc
-    owner: root:root
-    permissions: '0644'
-    content: |
-      # Slurmrestd service unit provided by OSD
-      [Unit]
-      Description=Slurm REST daemon
-      After=network.target munge.service slurmctld.service
-      ConditionPathExists=/etc/slurm/slurm.conf
-      Documentation=man:slurmrestd(8)
-      
-      [Service]
-      Type=simple
-      EnvironmentFile=-/etc/default/slurmrestd
-      # Default to local auth via socket
-      #ExecStart=/usr/sbin/slurmrestd $SLURMRESTD_OPTIONS unix:/run/slurmrestd.socket
-      # Uncomment to enable listening mode
-      Environment="SLURM_JWT=daemon"
-      ExecStart=/usr/sbin/slurmrestd $SLURMRESTD_OPTIONS -vv 0.0.0.0:6820
-      ExecReload=/bin/kill -HUP $MAINPID
-      User=slurmrestd
-      Group=slurmrestd
-      
-      [Install]
-      WantedBy=multi-user.target
-
   - path: /usr/share/keyrings/apptainer.asc
     owner: root:root
     permissions: '0644'
