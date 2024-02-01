@@ -52,31 +52,6 @@ download_cloud_image () {
   fi
 }
 
-wait_for_multipass () {
-  # Wait for Multipass to be usable.
-
-  # Do some logic to print something prettier
-  first_iteration=true
-
-  while true; do
-    # Run "multipass list" and redirect both stdout and stderr to /dev/null
-    multipass list > /dev/null 2>&1
-
-    # Check the exit status
-    if [ $? -eq 2 ]; then
-      if [ "$first_iteration" = true ]; then
-          echo "Waiting until multipass properly starts..."
-          first_iteration=false
-      else
-          echo -n "."  # Append a "." without a newline
-      fi
-      sleep 1
-    else
-      break  # Exit the loop if the exit status is 0
-    fi
-  done
-}
-
 launch_instance () {
   # Check whether to install from remote URL or local file. If $1, then installs from file.
   if [ -z $1 ]; then
@@ -135,12 +110,19 @@ EOF
 
 # Check if multipass is installed
 if [ -z $(snap list | grep multipass | awk '{ print $1 }') ]; then
-  echo "Multipass is required but not installed. Installing the latest stable revision..."
-  sudo snap install multipass --channel latest/stable
+  echo "Multipass is required but not installed. Please install multipass on the system."
+  exit 1
 else
   echo "Multipass is installed. Proceeding..."
 fi
 
-wait_for_multipass
+# deletes the temp directory
+cleanup () {
+  rm -f /tmp/cloud-init.yaml
+}
 
+# Launch democluster.
 launch_instance
+
+# register the cleanup function to be called on the EXIT signal
+trap cleanup EXIT
