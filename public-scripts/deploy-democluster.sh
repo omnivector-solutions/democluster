@@ -118,7 +118,7 @@ EOF
   $IMAGE_ORIGIN \
   --cloud-init -
 
-  #rm -f /tmp/cloud-init.yaml
+  rm -f /tmp/cloud-init.yaml
 }
 
 # Check if multipass is installed
@@ -138,4 +138,4 @@ cleanup () {
 launch_instance
 
 # register the cleanup function to be called on the EXIT signal
-#trap cleanup EXIT
+trap cleanup EXIT
