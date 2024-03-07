@@ -379,8 +379,8 @@ runcmd:
   - |
     cat <<EOF > /srv/jobbergate-agent-venv/.env
     JOBBERGATE_AGENT_X_SLURM_USER_NAME=ubuntu
-    JOBBERGATE_AGENT_BASE_API_URL=https://apis.vantagehpc.io
-    JOBBERGATE_AGENT_OIDC_DOMAIN=auth.vantagehpc.io/realms/vantage
+    JOBBERGATE_AGENT_BASE_API_URL=https://apis.@ENVIRONMENT@vantagehpc.io
+    JOBBERGATE_AGENT_OIDC_DOMAIN=auth.@ENVIRONMENT@vantagehpc.io/realms/vantage
     JOBBERGATE_AGENT_OIDC_AUDIENCE=https://apis.vantagehpc.io
     JOBBERGATE_AGENT_OIDC_CLIENT_ID=@CLIENT_ID@
     JOBBERGATE_AGENT_OIDC_CLIENT_SECRET=@CLIENT_SECRET@
