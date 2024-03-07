@@ -37,6 +37,7 @@
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
+ENVIRONMENT=$3
 CLOUD_IMAGE_URL=https://omnivector-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
 CLOUD_IMAGE_DEST=/tmp/democluster.img
 
@@ -59,6 +60,15 @@ launch_instance () {
   else
     IMAGE_ORIGIN=file://$1
   fi
+
+  # Set the environment to the empty string if not supplied
+  if [ -z $3 ]; then
+      ENVIRONMENT=""
+  else
+      ENVIRONMENT="${3}."
+  fi
+
+  echo "$ENVIRONMENT"
 
   # Create the cloud-init file and launch the demo cluster instance.
   cat <<EOF > /tmp/cloud-init.yaml
@@ -87,6 +97,7 @@ runcmd:
   - |
     sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/jobbergate-agent-venv/.env
     sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/jobbergate-agent-venv/.env
+    sed -i "s|@ENVIRONMENT@|$ENVIRONMENT|g" /srv/jobbergate-agent-venv/.env
   - systemctl start slurmrestd
   - systemctl restart slurmdbd
   - systemctl restart slurmd
