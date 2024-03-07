@@ -37,7 +37,6 @@
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
-ENVIRONMENT=$3
 CLOUD_IMAGE_URL=https://omnivector-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
 CLOUD_IMAGE_DEST=/tmp/democluster.img
 
@@ -62,13 +61,11 @@ launch_instance () {
   fi
 
   # Set the environment to the empty string if not supplied
-  if [ -z $3 ]; then
+  if [ -z $ENV ]; then
       ENVIRONMENT=""
   else
-      ENVIRONMENT="${3}."
+      ENVIRONMENT="${ENV}."
   fi
-
-  echo "$ENVIRONMENT"
 
   # Create the cloud-init file and launch the demo cluster instance.
   cat <<EOF > /tmp/cloud-init.yaml
@@ -107,6 +104,11 @@ runcmd:
   - systemctl start jobbergate-agent
 EOF
 
+  if [ -n $JG_VERSION ]; then
+      echo "  - systemctl stop jobbergate-agent" >> /tmp/cloud-init.yaml
+      echo "  - /srv/jobbergate-agent-venv/bin/pip install -U jobbergate-agent==$JG_VERSION" >> /tmp/cloud-init.yaml
+      echo "  - systemctl start jobbergate-agent" >> /tmp/cloud-init.yaml
+  fi
   mkdir -p $HOME/democluster/tmp
 
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
