@@ -111,10 +111,16 @@ EOF
   fi
   mkdir -p $HOME/democluster/tmp
 
+  # Extract the cluster name from the CLIENT_ID if possible. If not, use a timestamped generic name
+  democluster_name=$(echo $CLIENT_ID | perl -pe "s/(.*)-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/\1/")
+  if [ "$CLIENT_ID" = "$democluster_name" ]; then
+    democluster_name="democluster-$(date +'%Y-%m-%d')"
+  fi
+
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4GB \
   --mount=$HOME/democluster:/home/ubuntu/democluster \
-  -ndemocluster \
+  -n${democluster_name} \
   $IMAGE_ORIGIN \
   --cloud-init -
 
