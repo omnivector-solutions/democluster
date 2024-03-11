@@ -114,7 +114,7 @@ EOF
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4GB \
   --mount=$HOME/democluster:/home/ubuntu/democluster \
-  -ndemocluster \
+  -ndemocluster-`echo "$CLIENT_ID" | awk -F- '{print $1}'` \
   $IMAGE_ORIGIN \
   --cloud-init -
 
