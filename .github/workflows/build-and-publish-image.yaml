@@ -1,9 +1,16 @@
-name: 'Build and Publish democluster to s3'
+name: "Build and Publish democluster to s3"
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      jobbergate_version:
+        description: The Jobbergate agent version
+        required: false
+        type: string
+        default: 4.3.1
 
 jobs:
   build-image-in-lxd:
@@ -19,6 +26,8 @@ jobs:
           poetry install
 
       - name: Build democluster
+        env:
+          JG_VERSION: ${{ github.event.inputs.jobbergate_version }}
         run: |
           poetry run image-factory build democluster
 
@@ -28,6 +37,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
-            aws s3 sync democluster/final \
-              s3://omnivector-public-assets/cloud-images/democluster/latest \
-              --acl public-read --follow-symlinks --delete 1> /dev/null
+          aws s3 sync democluster/final \
+            s3://omnivector-public-assets/cloud-images/democluster/latest \
+            --acl public-read --follow-symlinks --delete 1> /dev/null

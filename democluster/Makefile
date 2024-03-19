@@ -19,6 +19,9 @@ check-deps: ## Check deps needed to build the image
 
 .PHONY: init
 init: ## Run packer init .
+	@if [ ! -z "$JG_VERSION" ]; then\
+		sed -i 's/jobbergate-agent==[0-9]\+\.[0-9]\+\.[0-9]\+/jobbergate-agent==$(JG_VERSION)/' user-data;\
+    fi
 	${PACKER} init .
 
 .PHONY: stage0
