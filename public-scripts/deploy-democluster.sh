@@ -114,7 +114,7 @@ EOF
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4GB \
   --mount=$HOME/democluster:/home/ubuntu/democluster \
-  -ndemocluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4\}-4[0-9a-f]\{3\}-[89abAB][0-9a-f]\{3\}-[0-9a-f]\{12\}//'` \
+  -n democluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4\}-4[0-9a-f]\{3\}-[89abAB][0-9a-f]\{3\}-[0-9a-f]\{12\}//'` \
   $IMAGE_ORIGIN \
   --cloud-init -
 
