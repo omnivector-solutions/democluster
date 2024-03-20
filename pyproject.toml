@@ -14,7 +14,7 @@ rich = "^13.5.2"
 [tool.poetry.dev-dependencies]
 ruff = "^0.0.282"
 mypy = "^1.4.1"
-black = "^23.7.0"
+black = "^24.3.0"
 
 [tool.poetry.group.dev.dependencies]
 types-pyyaml = "^6.0.12.11"
