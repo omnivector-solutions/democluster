@@ -10,9 +10,9 @@
 #   and sets up a customized environment for demonstrations.
 #
 # Usage:
-#   1. Provide your CLIENT_ID and CLIENT_SECRET as command-line arguments:
+#   1. Provide your CLIENT_ID and CLIENT_SECRET as environment variables:
 #      ```
-#      ./deploy-democluster.sh <CLIENT_ID> <CLIENT_SECRET>
+#      CLIENT_ID=<CLIENT_ID> CLIENT_SECRET=<CLIENT_SECRET> ./deploy-democluster.sh
 #      ```
 #   2. The script will identify the host's operating system and install
 #      necessary dependencies (Multipass, Homebrew, etc.) accordingly.
@@ -22,7 +22,15 @@
 # Prerequisites:
 #   - Bash shell
 #   - Internet connectivity for downloading dependencies (Multipass, Homebrew)
-#   - CLIENT_ID and CLIENT_SECRET obtained from Vantage
+#   - Non-optional environment variables set:
+#     - CLIENT_ID
+#     - CLIENT_SECRET
+#
+# Optional Environment Variables:
+#
+#   - ENV: The non-production environment to include in API URLs. (e.g. "staging", "dev", etc)
+#   - DOMAIN: The non-standard domain for API URLs. (e.g. "private-vantage.io")
+#   - JG_VERSION: The specific version of the jobbergate-agent to install (e.g. 4.4.0)
 #
 # Configuration:
 #   - Modify the script's constants (e.g., NUM_CPUS, MEMORY, IMAGE_URL) to
@@ -35,38 +43,47 @@
 #
 ################################################################################
 
-CLIENT_ID=$1
-CLIENT_SECRET=$2
-CLOUD_IMAGE_URL=https://omnivector-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
-CLOUD_IMAGE_DEST=/tmp/democluster.img
+# Check for the required environment variables
+if [ -z $CLIENT_ID ]; then
+  echo "You must set the CLIENT_ID variable."
+  exit 1
+fi
+if [ -z $CLIENT_SECRET ]; then
+  echo "You must set the CLIENT_SECRET variable."
+  exit 1
+fi
 
-download_cloud_image () {
-  # Download the demo cluster cloud image and outputs to $1.
-  if [ -a $1 ]
-  then
-    echo "The demo cluster cloud image already exists. Proceeding..."
-  else
+# Set the environment to the empty string if not supplied in the optional ENV variable
+if [ -z $ENV ]; then
+  ENVIRONMENT=""
+else
+  echo "Using optional setting ENV=$ENV for vantage URLs."
+  ENVIRONMENT="${ENV}."
+fi
+
+# Set the environment to the empty string if not supplied in the optional ENV variable
+if [ -z $DOMAIN ]; then
+  DOMAIN="vantagehpc.io"
+fi
+echo "Using setting DOMAIN=$DOMAIN for vantage URLs."
+
+
+IMAGE_CACHE=$HOME/democluster/image_cache
+MOUNTED_DIR=$HOME/democluster/mount
+
+mkdir -p $IMAGE_CACHE $MOUNTED_DIR/tmp
+
+CLOUD_IMAGE_URL=https://omnivector-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
+LOCAL_DEMOCLUSTER_IMG=$IMAGE_CACHE/democluster.img
+
+if ! [ -f $LOCAL_DEMOCLUSTER_IMG ]; then
     echo "Downloading the demo cluster cloud image, hang tight..."
-    curl -s --output $1 $CLOUD_IMAGE_URL
+    curl --progress-bar --output $LOCAL_DEMOCLUSTER_IMG $CLOUD_IMAGE_URL
     echo "Download finished. Proceeding..."
-  fi
-}
+fi
+
 
 launch_instance () {
-  # Check whether to install from remote URL or local file. If $1, then installs from file.
-  if [ -z $1 ]; then
-    IMAGE_ORIGIN=$CLOUD_IMAGE_URL
-  else
-    IMAGE_ORIGIN=file://$1
-  fi
-
-  # Set the environment to the empty string if not supplied
-  if [ -z $ENV ]; then
-      ENVIRONMENT=""
-  else
-      ENVIRONMENT="${ENV}."
-  fi
-
   # Create the cloud-init file and launch the demo cluster instance.
   cat <<EOF > /tmp/cloud-init.yaml
 #cloud-config
@@ -94,6 +111,7 @@ runcmd:
   - |
     sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/jobbergate-agent-venv/.env
     sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/jobbergate-agent-venv/.env
+    sed -i "s|@DOMAIN@|$DOMAIN|g" /srv/jobbergate-agent-venv/.env
     sed -i "s|@ENVIRONMENT@|$ENVIRONMENT|g" /srv/jobbergate-agent-venv/.env
   - systemctl start slurmrestd
   - systemctl restart slurmdbd
@@ -109,13 +127,12 @@ EOF
       echo "  - /srv/jobbergate-agent-venv/bin/pip install -U jobbergate-agent==$JG_VERSION" >> /tmp/cloud-init.yaml
       echo "  - systemctl start jobbergate-agent" >> /tmp/cloud-init.yaml
   fi
-  mkdir -p $HOME/democluster/tmp
 
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4GB \
-  --mount=$HOME/democluster:/home/ubuntu/democluster \
+  --mount=$MOUNTED_DIR:/home/ubuntu/democluster \
   -n democluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4\}-4[0-9a-f]\{3\}-[89abAB][0-9a-f]\{3\}-[0-9a-f]\{12\}//'` \
-  $IMAGE_ORIGIN \
+  file://$LOCAL_DEMOCLUSTER_IMG \
   --cloud-init -
 
   rm -f /tmp/cloud-init.yaml

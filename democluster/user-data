@@ -5,9 +5,9 @@ write_files:
     permissions: '0644'
     content: |
       -----BEGIN PGP PUBLIC KEY BLOCK-----
-      Comment: Hostname: 
+      Comment: Hostname:
       Version: Hockeypuck 2.1.0-223-gdc2762b
-      
+
       xsFNBGPKLe0BEADKAHtUqLFryPhZ3m6uwuIQvwUr4US17QggRrOaS+jAb6e0P8kN
       1clzJDuh3C6GnxEZKiTW3aZpcrW/n39qO263OMoUZhm1AliqiViJgthnqYGSbMgZ
       /OB6ToQeHydZ+MgI/jpdAyYSI4Tf4SVPRbOafLvnUW5g/vJLMzgTAxyyWEjvH9Lx
@@ -40,9 +40,9 @@ write_files:
     permissions: '0644'
     content: |
       -----BEGIN PGP PUBLIC KEY BLOCK-----
-      Comment: Hostname: 
+      Comment: Hostname:
       Version: Hockeypuck 2.1.0-223-gdc2762b
-      
+
       xsFNBGTuZb8BEACtJ1CnZe6/hv84DceHv+a54y3Pqq0gqED0xhTKnbj/E2ByJpmT
       NlDNkpeITwPAAN1e3824Me76Qn31RkogTMoPJ2o2XfG253RXd67MPxYhfKTJcnM3
       CEkmeI4u2Lynh3O6RQ08nAFS2AGTeFVFH2GPNWrfOsGZW03Jas85TZ0k7LXVHiBs
@@ -159,22 +159,22 @@ write_files:
       AuthInfo="socket=/var/run/munge/munge.socket.2"
       AuthAltTypes=auth/jwt
       AuthAltParameters="jwt_key=/var/lib/slurm/slurmctld/jwt_hs256.key"
-      
+
       SwitchType=switch/none
-      
+
       SlurmctldPidFile=/var/run/slurmctld.pid
       SlurmdPidFile=/var/run/slurmd.pid
-      
+
       SlurmctldLogFile=/var/log/slurm/slurmctld.log
       SlurmdLogFile=/var/log/slurm/slurmd.log
-      
+
       SlurmdSpoolDir=/var/lib/slurm/slurmd
       StateSaveLocation=/var/lib/slurm/checkpoint
-      
+
       PluginDir=/usr/lib/x86_64-linux-gnu/slurm-wlm/
-      
+
       PlugStackConfig=/etc/slurm/plugstack.conf
-      
+
       ProctrackType=proctrack/linuxproc
       ReturnToService=2
 
@@ -225,9 +225,9 @@ write_files:
       SlurmUser=slurm
 
       PluginDir=/usr/lib/x86_64-linux-gnu/slurm-wlm/
-      
+
       PidFile=/var/run/slurmdbd.pid
-      
+
       LogFile=/var/log/slurm/slurmdbd.log
 
       StorageType=accounting_storage/mysql
@@ -319,11 +319,11 @@ runcmd:
   - systemctl start mysql.service
   - |
     mysql << END
-    
+
     CREATE USER 'slurm'@'localhost' IDENTIFIED BY 'rats';
     CREATE DATABASE IF NOT EXISTS slurm DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
     GRANT ALL PRIVILEGES ON  slurm.* TO 'slurm'@'localhost';
-    
+
     END
   # set up slurmrestd user and group
   - groupadd --gid 64031 slurmrestd
@@ -353,7 +353,7 @@ runcmd:
     After=network.target munge.service slurmctld.service
     ConditionPathExists=/etc/slurm/slurm.conf
     Documentation=man:slurmrestd(8)
-    
+
     [Service]
     Type=simple
     EnvironmentFile=-/etc/default/slurmrestd
@@ -365,7 +365,7 @@ runcmd:
     ExecReload=/bin/kill -HUP $MAINPID
     User=slurmrestd
     Group=slurmrestd
-    
+
     [Install]
     WantedBy=multi-user.target
     EOF
@@ -375,12 +375,12 @@ runcmd:
   # create jobbergate agent venv
   - /usr/bin/python3 -m venv /srv/jobbergate-agent-venv
   - /srv/jobbergate-agent-venv/bin/pip install -U pip
-  - /srv/jobbergate-agent-venv/bin/pip install jobbergate-agent==4.2.1
+  - /srv/jobbergate-agent-venv/bin/pip install jobbergate-agent
   - |
     cat <<EOF > /srv/jobbergate-agent-venv/.env
     JOBBERGATE_AGENT_X_SLURM_USER_NAME=ubuntu
-    JOBBERGATE_AGENT_BASE_API_URL=https://apis.@ENVIRONMENT@vantagehpc.io
-    JOBBERGATE_AGENT_OIDC_DOMAIN=auth.@ENVIRONMENT@vantagehpc.io/realms/vantage
+    JOBBERGATE_AGENT_BASE_API_URL=https://apis.@ENVIRONMENT@@DOMAIN@
+    JOBBERGATE_AGENT_OIDC_DOMAIN=auth.@ENVIRONMENT@@DOMAIN@/realms/vantage
     JOBBERGATE_AGENT_OIDC_AUDIENCE=https://apis.vantagehpc.io
     JOBBERGATE_AGENT_OIDC_CLIENT_ID=@CLIENT_ID@
     JOBBERGATE_AGENT_OIDC_CLIENT_SECRET=@CLIENT_SECRET@
