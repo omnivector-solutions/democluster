@@ -104,7 +104,7 @@ runcmd:
   - systemctl start jobbergate-agent
 EOF
 
-  if [ -n $JG_VERSION ]; then
+  if ! [ -z "${JG_VERSION}" ]; then
       echo "  - systemctl stop jobbergate-agent" >> /tmp/cloud-init.yaml
       echo "  - /srv/jobbergate-agent-venv/bin/pip install -U jobbergate-agent==$JG_VERSION" >> /tmp/cloud-init.yaml
       echo "  - systemctl start jobbergate-agent" >> /tmp/cloud-init.yaml
