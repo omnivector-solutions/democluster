@@ -103,8 +103,8 @@ def democluster(
     print("Kicking off packer build in LXD container.")
     command = ["make", stage.value]
     if jg_version := os.getenv("JG_VERSION"):
-        command = ["JG_VERSION={jg_version}"] + command
-    print("Using command {command}")
+        command = [f"JG_VERSION={jg_version}"] + command
+    print(f"Using command {command}")
     lxc.exec(
         command=command,
         cwd="/srv/image-factory/democluster",
