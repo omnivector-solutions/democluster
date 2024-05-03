@@ -101,16 +101,16 @@ def democluster(
             typer.Exit(124)
 
     print("Kicking off packer build in LXD container.")
-    command = ["make", stage.value]
-    if jg_version := os.getenv("JG_VERSION"):
-        command = [f"JG_VERSION={jg_version}"] + command
-    print(f"Using command {command}")
-    lxc.exec(
-        command=command,
+    kwargs = dict(
+        command=["make", stage.value],
         cwd="/srv/image-factory/democluster",
         instance_name=instance_name,
         project=ctx.obj.project_name,
     )
+    if jg_version := os.getenv("JG_VERSION"):
+        print(f"Passing along env var JG_VERSION={jg_version}")
+        kwargs["env"] = dict(JG_VERSION=jg_version)
+    lxc.exec(**kwargs)
 
     print("[bold green]Build complete, destroying LXD container.[/bold green]")
     lxc.delete(instance_name=instance_name, project=ctx.obj.project_name, force=True)
