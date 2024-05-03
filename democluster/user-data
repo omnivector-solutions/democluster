@@ -375,7 +375,7 @@ runcmd:
   # create jobbergate agent venv
   - /usr/bin/python3 -m venv /srv/jobbergate-agent-venv
   - /srv/jobbergate-agent-venv/bin/pip install -U pip
-  - /srv/jobbergate-agent-venv/bin/pip install jobbergate-agent==5.1.0
+  - /srv/jobbergate-agent-venv/bin/pip install jobbergate-agent==
   - |
     cat <<EOF > /srv/jobbergate-agent-venv/.env
     JOBBERGATE_AGENT_X_SLURM_USER_NAME=root
