@@ -104,6 +104,7 @@ def democluster(
     command = ["make", stage.value]
     if jg_version := os.getenv("JG_VERSION"):
         command = ["JG_VERSION={jg_version}"] + command
+    print("Using command {command}")
     lxc.exec(
         command=command,
         cwd="/srv/image-factory/democluster",
