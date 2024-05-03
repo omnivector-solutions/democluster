@@ -5,12 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      jobbergate_version:
-        description: The Jobbergate agent version
-        required: false
-        type: string
-        default: 4.3.1
 
 jobs:
   build-image-in-lxd:
@@ -26,8 +20,6 @@ jobs:
           poetry install
 
       - name: Build democluster
-        env:
-          JG_VERSION: ${{ github.event.inputs.jobbergate_version }}
         run: |
           poetry run image-factory build democluster
 
