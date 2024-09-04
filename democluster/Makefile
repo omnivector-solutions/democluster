@@ -19,12 +19,6 @@ check-deps: ## Check deps needed to build the image
 
 .PHONY: init
 init: ## Run packer init .
-	@if [ ! -z "$JG_VERSION" ]; then\
-		sed -i 's/pip install jobbergate-agent/pip install jobbergate-agent==$(JG_VERSION)/' user-data;\
-    fi
-	@if [ ! -z "$VTG_VERSION" ]; then\
-		sed -i 's/pip install vantage-agent/pip install vantage-agent==$(VTG_VERSION)/' user-data;\
-    fi
 	${PACKER} init .
 
 .PHONY: stage0
