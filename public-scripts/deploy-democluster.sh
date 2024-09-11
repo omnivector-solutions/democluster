@@ -106,6 +106,7 @@ runcmd:
   - systemctl restart slurmctld
   - scontrol update NodeName=\$(hostname) State=RESUME
   - systemctl start jobbergate-agent
+  - systemctl start vantage-agent
 EOF
 
   if ! [ -z "${JG_VERSION}" ]; then
