@@ -95,6 +95,10 @@ runcmd:
     sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/jobbergate-agent-venv/.env
     sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/jobbergate-agent-venv/.env
     sed -i "s|@ENVIRONMENT@|$ENVIRONMENT|g" /srv/jobbergate-agent-venv/.env
+  - |
+    sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/vantage-agent-venv/.env
+    sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/vantage-agent-venv/.env
+    sed -i "s|@ENVIRONMENT@|$ENVIRONMENT|g" /srv/vantage-agent-venv/.env
   - systemctl start slurmrestd
   - systemctl restart slurmdbd
   - systemctl restart slurmd
@@ -102,12 +106,18 @@ runcmd:
   - systemctl restart slurmctld
   - scontrol update NodeName=\$(hostname) State=RESUME
   - systemctl start jobbergate-agent
+  - systemctl start vantage-agent
 EOF
 
   if ! [ -z "${JG_VERSION}" ]; then
       echo "  - systemctl stop jobbergate-agent" >> /tmp/cloud-init.yaml
       echo "  - /srv/jobbergate-agent-venv/bin/pip install -U jobbergate-agent==$JG_VERSION" >> /tmp/cloud-init.yaml
       echo "  - systemctl start jobbergate-agent" >> /tmp/cloud-init.yaml
+  fi
+  if ! [ -z "${VTG_VERSION}" ]; then
+      echo "  - systemctl stop vantage-agent" >> /tmp/cloud-init.yaml
+      echo "  - /srv/vantage-agent-venv/bin/pip install -U vantage-agent==$VTG_VERSION" >> /tmp/cloud-init.yaml
+      echo "  - systemctl start vantage-agent" >> /tmp/cloud-init.yaml
   fi
   mkdir -p $HOME/democluster/tmp
 
