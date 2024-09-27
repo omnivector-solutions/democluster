@@ -62,9 +62,11 @@ launch_instance () {
 
   # Set the environment to the empty string if not supplied
   if [ -z $ENV ]; then
-      ENVIRONMENT=""
+      BASE_API_URL="https://apis.vantagehpc.io"
+      OIDC_DOMAIN="auth.vantagehpc.io/realms/vantage"
   else
-      ENVIRONMENT="${ENV}."
+      BASE_API_URL="https://apis.${ENV}.vantagehpc.io"
+      OIDC_DOMAIN="auth.${ENV}.vantagehpc.io/realms/vantage"
   fi
 
   # Create the cloud-init file and launch the demo cluster instance.
@@ -91,34 +93,27 @@ runcmd:
 
     REAL_MEMORY=\$(free -m | grep -oP '\\d+' | head -n 1)
     sed -i "s|@REAL_MEMORY@|\$REAL_MEMORY|g" /etc/slurm/slurm.conf
-  - |
-    sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/jobbergate-agent-venv/.env
-    sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/jobbergate-agent-venv/.env
-    sed -i "s|@ENVIRONMENT@|$ENVIRONMENT|g" /srv/jobbergate-agent-venv/.env
-  - |
-    sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/vantage-agent-venv/.env
-    sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/vantage-agent-venv/.env
-    sed -i "s|@ENVIRONMENT@|$ENVIRONMENT|g" /srv/vantage-agent-venv/.env
   - systemctl start slurmrestd
   - systemctl restart slurmdbd
   - systemctl restart slurmd
   - sleep 30
   - systemctl restart slurmctld
   - scontrol update NodeName=\$(hostname) State=RESUME
-  - systemctl start jobbergate-agent
-  - systemctl start vantage-agent
+  - snap set vantage-agent base-api-url=$BASE_API_URL
+  - snap set vantage-agent oidc-client-id=$CLIENT_ID
+  - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
+  - snap set vantage-agent task-jobs-interval-seconds=30
+  - snap set vantage-agent task-self-update-interval-seconds=30
+  - snap set jobbergate-agent base-api-url=$BASE_API_URL
+  - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
+  - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
+  - snap set jobbergate-agent task-jobs-interval-seconds=30
+  - snap set jobbergate-agent task-self-update-interval-seconds=30
+  - snap set jobbergate-agent x-slurm-user-name=root
+  - snap start vantage-agent.start
+  - snap start jobbergate-agent.start
 EOF
 
-  if ! [ -z "${JG_VERSION}" ]; then
-      echo "  - systemctl stop jobbergate-agent" >> /tmp/cloud-init.yaml
-      echo "  - /srv/jobbergate-agent-venv/bin/pip install -U jobbergate-agent==$JG_VERSION" >> /tmp/cloud-init.yaml
-      echo "  - systemctl start jobbergate-agent" >> /tmp/cloud-init.yaml
-  fi
-  if ! [ -z "${VTG_VERSION}" ]; then
-      echo "  - systemctl stop vantage-agent" >> /tmp/cloud-init.yaml
-      echo "  - /srv/vantage-agent-venv/bin/pip install -U vantage-agent==$VTG_VERSION" >> /tmp/cloud-init.yaml
-      echo "  - systemctl start vantage-agent" >> /tmp/cloud-init.yaml
-  fi
   mkdir -p $HOME/democluster/tmp
 
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
