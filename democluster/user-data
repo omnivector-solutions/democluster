@@ -70,7 +70,6 @@ write_files:
     =cs1s
     -----END PGP PUBLIC KEY BLOCK-----
 
-
 - path: /var/lib/slurm/slurmctld/jwt_hs256.key
   owner: root:root
   permissions: '0600'
@@ -276,7 +275,6 @@ write_files:
     PurgeTXNAfter="12month"
     PurgeUsageAfter="24month"
 
-
 users:
 - name: root
   lock_passwd: false
@@ -292,8 +290,8 @@ system_info:
     shell: /bin/bash
     lock_passwd: false
     gecos: Ubuntu
-    groups: [adm, cdrom, dip, lxd, sudo]
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    groups: [ adm, cdrom, dip, lxd, sudo ]
+    sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
 ssh_pwauth: True
 disable_root: false
 preserve_hostname: true
@@ -319,6 +317,12 @@ packages:
 - mpich
 - python3-venv
 - apptainer
+
+snap:
+  commands:
+    0: snap install vantage-agent --channel=stable --classic
+    1: snap install jobbergate-agent --channel=stable --classic
+
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
@@ -388,40 +392,5 @@ runcmd:
   [Install]
   WantedBy=multi-user.target
   EOF
-
-- systemctl daemon-reload
-
-# create agents' venv
-- /usr/bin/python3 -m venv /srv/jobbergate-agent-venv
-- /srv/jobbergate-agent-venv/bin/pip install -U pip
-- /srv/jobbergate-agent-venv/bin/pip install jobbergate-agent
-- |
-  cat <<EOF > /srv/jobbergate-agent-venv/.env
-  JOBBERGATE_AGENT_X_SLURM_USER_NAME=root
-  JOBBERGATE_AGENT_BASE_API_URL=https://apis.@ENVIRONMENT@vantagehpc.io
-  JOBBERGATE_AGENT_OIDC_DOMAIN=auth.@ENVIRONMENT@vantagehpc.io/realms/vantage
-  JOBBERGATE_AGENT_OIDC_AUDIENCE=https://apis.vantagehpc.io
-  JOBBERGATE_AGENT_OIDC_CLIENT_ID=@CLIENT_ID@
-  JOBBERGATE_AGENT_OIDC_CLIENT_SECRET=@CLIENT_SECRET@
-  JOBBERGATE_AGENT_TASK_JOBS_INTERVAL_SECONDS=30
-  JOBBERGATE_AGENT_TASK_SELF_UPDATE_INTERVAL_SECONDS=30
-  EOF
-  chown root:root /srv/jobbergate-agent-venv/.env
-  chmod 0644 /srv/jobbergate-agent-venv/.env
-
-- /usr/bin/python3 -m venv /srv/vantage-agent-venv
-- /srv/vantage-agent-venv/bin/pip install -U pip
-- /srv/vantage-agent-venv/bin/pip install vantage-agent
-- |
-  cat <<EOF > /srv/vantage-agent-venv/.env
-  VANTAGE_AGENT_BASE_API_URL=https://apis.@ENVIRONMENT@vantagehpc.io
-  VANTAGE_AGENT_OIDC_DOMAIN=auth.@ENVIRONMENT@vantagehpc.io/realms/vantage
-  VANTAGE_AGENT_OIDC_CLIENT_ID=@CLIENT_ID@
-  VANTAGE_AGENT_OIDC_CLIENT_SECRET=@CLIENT_SECRET@
-  VANTAGE_AGENT_TASK_JOBS_INTERVAL_SECONDS=30
-  VANTAGE_AGENT_TASK_SELF_UPDATE_INTERVAL_SECONDS=30
-  EOF
-  chown root:root /srv/vantage-agent-venv/.env
-  chmod 0644 /srv/vantage-agent-venv/.env
 
 - systemctl daemon-reload
