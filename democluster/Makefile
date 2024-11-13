@@ -19,9 +19,6 @@ check-deps: ## Check deps needed to build the image
 
 .PHONY: init
 init: ## Run packer init .
-	@if [ ! -z "$JG_VERSION" ]; then\
-		sed -i 's/jobbergate-agent==[0-9]\+\.[0-9]\+\.[0-9]\+/jobbergate-agent==$(JG_VERSION)/' user-data;\
-    fi
 	${PACKER} init .
 
 .PHONY: stage0
@@ -40,7 +37,7 @@ delete-democluster-local: ## Delete the local democluster.
 	multipass delete democluster
 	multipass purge
 
-.PHONY: deploy-democluster-local 
+.PHONY: deploy-democluster-local
 deploy-democluster-local: delete-democluster-local ## Deploy democluster from locally built image.
 	./helpers/deploy_local_democluster.sh $(CLIENT_ID) $(CLIENT_SECRET)
 
