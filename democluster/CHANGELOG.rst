@@ -7,6 +7,13 @@ Tracking of all notable changes to the Demo Cluster image.
 Unreleased
 ----------
 
+0.3.0 - 2024-10-13
+------------------
+
+- Implement support for the InfluxDB integration with job metrics (`PENG-2467`_).
+
+.. _PENG-2467: https://app.clickup.com/t/18022949/PENG-2467
+
 0.2.0 - 2023-09-20
 ------------------
 
