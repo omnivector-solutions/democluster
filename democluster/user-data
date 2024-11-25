@@ -190,6 +190,25 @@ write_files:
     Alias=jobbergate-agent.service
     WantedBy=multi-user.target
 
+- path: /usr/lib/systemd/system/vantage-agent.service
+  owner: root:root
+  permissions: '0644'
+  content: |
+    [Unit]
+    Description=vantage-agent
+    After=network.target
+
+    [Service]
+    Type=simple
+    User=root
+    Group=root
+    WorkingDirectory=/srv/vantage-agent-venv
+    ExecStart=/srv/vantage-agent-venv/bin/vtg-run
+
+    [Install]
+    Alias=vantage-agent.service
+    WantedBy=multi-user.target
+
 - path: /etc/slurm/slurmrestd.conf
   owner: root:root
   permissions: '0600'
@@ -384,6 +403,12 @@ packages:
 - apptainer
 - influxdb
 - influxdb-client
+
+snap:
+  commands:
+    0: snap install vantage-agent --channel=stable --classic
+    1: snap install jobbergate-agent --channel=stable --classic
+
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
@@ -460,23 +485,4 @@ runcmd:
   WantedBy=multi-user.target
   EOF
 
-- systemctl daemon-reload
-
-# create jobbergate agent venv
-- /usr/bin/python3 -m venv /srv/jobbergate-agent-venv
-- /srv/jobbergate-agent-venv/bin/pip install -U pip
-- /srv/jobbergate-agent-venv/bin/pip install jobbergate-agent==5.1.0
-- |
-  cat <<EOF > /srv/jobbergate-agent-venv/.env
-  JOBBERGATE_AGENT_X_SLURM_USER_NAME=root
-  JOBBERGATE_AGENT_BASE_API_URL=https://apis.@ENVIRONMENT@vantagehpc.io
-  JOBBERGATE_AGENT_OIDC_DOMAIN=auth.@ENVIRONMENT@vantagehpc.io/realms/vantage
-  JOBBERGATE_AGENT_OIDC_AUDIENCE=https://apis.vantagehpc.io
-  JOBBERGATE_AGENT_OIDC_CLIENT_ID=@CLIENT_ID@
-  JOBBERGATE_AGENT_OIDC_CLIENT_SECRET=@CLIENT_SECRET@
-  JOBBERGATE_AGENT_TASK_JOBS_INTERVAL_SECONDS=30
-  JOBBERGATE_AGENT_TASK_SELF_UPDATE_INTERVAL_SECONDS=30
-  EOF
-  chown root:root /srv/jobbergate-agent-venv/.env
-  chmod 0644 /srv/jobbergate-agent-venv/.env
 - systemctl daemon-reload

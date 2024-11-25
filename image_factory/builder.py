@@ -68,7 +68,7 @@ def democluster(
     )
 
     # Mount needed directories into the instance
-    lxd_instance = lxd.LXDInstance(name=instance_name, project="image-factory")
+    lxd_instance = lxd.LXDInstance(name=instance_name, project=ctx.obj.project_name)
     lxd_instance.mount(host_source=Path(os.getcwd()), target=Path("/srv/image-factory"))
 
     # If you already have a packer cache in your home, mount it to speed things up
