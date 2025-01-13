@@ -18,6 +18,7 @@ black = "^24.3.0"
 
 [tool.poetry.group.dev.dependencies]
 types-pyyaml = "^6.0.12.11"
+awscli = "^1.36.38"
 
 [tool.black]
 line-length = 110
