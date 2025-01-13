@@ -350,7 +350,7 @@ write_files:
 
 - path: /etc/slurm/acct_gather.conf
   owner: root:root
-  permissions: '0600'
+  permissions: '0644'
   content: |
     ProfileInfluxDBDatabase=slurm-job-metrics
     ProfileInfluxDBDefault=All
