@@ -171,44 +171,6 @@ write_files:
     =mg0I
     -----END PGP PUBLIC KEY BLOCK-----
 
-- path: /usr/lib/systemd/system/jobbergate-agent.service
-  owner: root:root
-  permissions: '0644'
-  content: |
-    [Unit]
-    Description=jobbergate-agent
-    After=network.target
-
-    [Service]
-    Type=simple
-    User=root
-    Group=root
-    WorkingDirectory=/srv/jobbergate-agent-venv
-    ExecStart=/srv/jobbergate-agent-venv/bin/jg-run
-
-    [Install]
-    Alias=jobbergate-agent.service
-    WantedBy=multi-user.target
-
-- path: /usr/lib/systemd/system/vantage-agent.service
-  owner: root:root
-  permissions: '0644'
-  content: |
-    [Unit]
-    Description=vantage-agent
-    After=network.target
-
-    [Service]
-    Type=simple
-    User=root
-    Group=root
-    WorkingDirectory=/srv/vantage-agent-venv
-    ExecStart=/srv/vantage-agent-venv/bin/vtg-run
-
-    [Install]
-    Alias=vantage-agent.service
-    WantedBy=multi-user.target
-
 - path: /etc/slurm/slurmrestd.conf
   owner: root:root
   permissions: '0600'
