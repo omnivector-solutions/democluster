@@ -62,11 +62,11 @@ launch_instance () {
 
   # Set the environment to the empty string if not supplied
   if [ -z $ENV ]; then
-      BASE_API_URL="https://apis.vantagehpc.io"
-      OIDC_DOMAIN="auth.vantagehpc.io/realms/vantage"
+      BASE_API_URL="https://apis.vantagecompute.ai"
+      OIDC_DOMAIN="auth.vantagecompute.ai/realms/vantage"
   else
-      BASE_API_URL="https://apis.${ENV}.vantagehpc.io"
-      OIDC_DOMAIN="auth.${ENV}.vantagehpc.io/realms/vantage"
+      BASE_API_URL="https://apis.${ENV}.vantagecompute.ai"
+      OIDC_DOMAIN="auth.${ENV}.vantagecompute.ai/realms/vantage"
   fi
 
   # Create the cloud-init file and launch the demo cluster instance.
@@ -93,24 +93,25 @@ runcmd:
 
     REAL_MEMORY=\$(free -m | grep -oP '\\d+' | head -n 1)
     sed -i "s|@REAL_MEMORY@|\$REAL_MEMORY|g" /etc/slurm/slurm.conf
-  - systemctl start slurmrestd
   - systemctl restart slurmdbd
-  - systemctl restart slurmd
   - sleep 30
   - systemctl restart slurmctld
+  - systemctl restart slurmd
   - scontrol update NodeName=\$(hostname) State=RESUME
   - snap set vantage-agent base-api-url=$BASE_API_URL
   - snap set vantage-agent oidc-client-id=$CLIENT_ID
   - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
+  - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
   - snap set vantage-agent task-jobs-interval-seconds=30
   - snap set jobbergate-agent base-api-url=$BASE_API_URL
   - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
   - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
+  - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
   - snap set jobbergate-agent task-jobs-interval-seconds=30
   - snap set jobbergate-agent x-slurm-user-name=root
   - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
-  - snap start vantage-agent.start
-  - snap start jobbergate-agent.start
+  - snap start vantage-agent.start --enable
+  - snap start jobbergate-agent.start --enable
 EOF
 
   mkdir -p $HOME/democluster/tmp

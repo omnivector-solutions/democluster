@@ -2,6 +2,8 @@
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
+BASE_API_URL="https://apis.vantagecompute.ai"
+OIDC_DOMAIN="auth.vantagecompute.ai/realms/vantage"
 
 cat <<EOF > /tmp/cloud-init.yaml
 #cloud-config
@@ -30,13 +32,26 @@ runcmd:
     sed -i "s|@CLIENT_ID@|$CLIENT_ID|g" /srv/jobbergate-agent-venv/.env
     sed -i "s|@CLIENT_SECRET@|$CLIENT_SECRET|g" /srv/jobbergate-agent-venv/.env
   - |
-  - systemctl start slurmrestd
   - systemctl restart slurmdbd
-  - systemctl restart slurmd
   - sleep 30
   - systemctl restart slurmctld
+  - systemctl restart slurmd
   - scontrol update NodeName=\$(hostname) State=RESUME
-  - systemctl start jobbergate-agent
+
+  - snap set vantage-agent base-api-url=$BASE_API_URL
+  - snap set vantage-agent oidc-client-id=$CLIENT_ID
+  - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
+  - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
+  - snap set vantage-agent task-jobs-interval-seconds=30
+  - snap set jobbergate-agent base-api-url=$BASE_API_URL
+  - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
+  - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
+  - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
+  - snap set jobbergate-agent task-jobs-interval-seconds=30
+  - snap set jobbergate-agent x-slurm-user-name=ubuntu
+  - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
+  - snap start vantage-agent.start --enable
+  - snap start jobbergate-agent.start --enable
 EOF
 
 mkdir -p $HOME/democluster
