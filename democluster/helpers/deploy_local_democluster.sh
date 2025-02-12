@@ -48,8 +48,8 @@ runcmd:
   - snap set jobbergate-agent task-jobs-interval-seconds=30
   - snap set jobbergate-agent x-slurm-user-name=root
   - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
-  - snap start vantage-agent.start
-  - snap start jobbergate-agent.start
+  - snap run vantage-agent.start
+  - snap run jobbergate-agent.start
 EOF
 
 mkdir -p $HOME/democluster
