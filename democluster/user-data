@@ -28,8 +28,6 @@ write_files:
     AuthType=auth/munge
     AuthInfo="socket=/var/run/munge/munge.socket.2"
 
-    SwitchType=switch/none
-
     SlurmctldPidFile=/var/run/slurmctld.pid
     SlurmdPidFile=/var/run/slurmd.pid
 
@@ -43,7 +41,7 @@ write_files:
 
     PlugStackConfig=/etc/slurm/plugstack.conf
 
-    ProctrackType=proctrack/cgroup
+    ProctrackType=proctrack/linuxproc
 
     ReturnToService=2
     RebootProgram="/usr/sbin/reboot --reboot"
@@ -65,17 +63,15 @@ write_files:
     # Logging
     SlurmctldDebug=3
     SlurmdDebug=3
-    DebugFlags=NO_CONF_HASH
-    JobCompType=jobcomp/none
 
     # Accounting
     AcctGatherProfileType=acct_gather_profile/influxdb
     AcctGatherInterconnectType=acct_gather_interconnect/sysfs
     AcctGatherNodeFreq=10
-    JobAcctGatherType=jobacct_gather/cgroup
-    JobAcctGatherFrequency=task=5,network=5
+    JobAcctGatherType=jobacct_gather/linux
+    JobAcctGatherFrequency="task=5,network=5"
 
-    TaskPlugin=task/affinity,task/cgroup
+    TaskPlugin="task/affinity"
 
     # Slurmdbd
     AccountingStorageType=accounting_storage/slurmdbd
@@ -90,14 +86,6 @@ write_files:
     # Partition Configurations
     PartitionName=compute Nodes=@HEADNODE_HOSTNAME@ MaxTime=INFINITE State=UP Default=Yes
 
-- path: /etc/slurm/cgroup.conf
-  owner: root:root
-  permissions: '0644'
-  content: |
-    ConstrainCores=yes
-    ConstrainDevices=yes
-    ConstrainRAMSpace=yes
-    ConstrainSwapSpace=yes
 
 - path: /etc/slurm/slurmdbd.conf
   owner: root:root
@@ -154,7 +142,7 @@ write_files:
     ProfileInfluxDBPass=rats
     ProfileInfluxDBUser=slurm
     ProfileInfluxDBRTPolicy=three_days
-    SysfsInterfaces=lo,eth0
+    SysfsInterfaces=lo,ens3
 
 users:
 - name: root
