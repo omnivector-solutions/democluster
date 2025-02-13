@@ -10,8 +10,6 @@ jobs:
   call-build-workflow:
     name: call-build-workflow
     uses: .github/workflows/build-image.yml
-    with:
-      jobbergate_version: "4.3.1"
 
   validate-image:
     name: copy-image
