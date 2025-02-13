@@ -30,7 +30,7 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: |
           aws s3 sync democluster/final \
-            s3://omnivector-public-assets/cloud-images/democluster/latest \
+            s3://vantage-public-assets/cloud-images/democluster/latest \
             --acl public-read --follow-symlinks --delete 1> /dev/null
 
   install-script-cd:
