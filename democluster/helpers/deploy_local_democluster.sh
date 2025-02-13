@@ -93,7 +93,7 @@ mkdir -p $HOME/democluster || true
 
 cat /tmp/cloud-init.yaml | multipass launch --verbose -c$(nproc) \
 -m4GB \
---mount $HOME/democluster:/home/ubuntu/democluster \
+--mount $HOME/democluster:/nfs/mnt \
 -ndemocluster \
 file://`pwd`/democluster/final/democluster.img \
 --cloud-init -
