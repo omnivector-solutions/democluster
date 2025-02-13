@@ -272,9 +272,8 @@ runcmd:
 - systemctl enable munge
 - systemctl start munge
 # make sure the daemons are running
-- systemctl daemon-reload
 - systemctl stop slurmdbd
 - systemctl stop slurmctld
 - systemctl stop slurmd
 - mkdir -p /nfs/mnt
-- chmod 777 /mfs/mnt
+- chmod 777 /nfs/mnt
