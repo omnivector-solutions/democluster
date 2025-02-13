@@ -9,3 +9,5 @@ output-*
 seeds-cloudimg.iso
 *.tar.gz
 *.img
+
+cdk.out/

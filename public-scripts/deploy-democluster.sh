@@ -37,7 +37,7 @@
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
-CLOUD_IMAGE_URL=https://omnivector-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
+CLOUD_IMAGE_URL=https://vantage-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
 CLOUD_IMAGE_DEST=/tmp/democluster.img
 
 download_cloud_image () {
@@ -99,11 +99,13 @@ runcmd:
   - systemctl restart slurmd
   - scontrol update NodeName=\$(hostname) State=RESUME
   - snap set vantage-agent base-api-url=$BASE_API_URL
+  - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
   - snap set vantage-agent oidc-client-id=$CLIENT_ID
   - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
   - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
   - snap set vantage-agent task-jobs-interval-seconds=30
   - snap set jobbergate-agent base-api-url=$BASE_API_URL
+  - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
   - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
   - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
   - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
