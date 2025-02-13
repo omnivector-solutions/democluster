@@ -31,13 +31,16 @@ jobs:
           poetry run image-factory build democluster
 
   validate-image:
-    name: copy-image
+    name: validate-image
     runs-on: self-hosted
     needs: call-build-workflow
     steps:
       - name: Copy built image to target location
         run: |
           cp democluster/final/democluster.img .
+      - name: Install multipass
+        run: |
+           sudo snap install multipass
       - name: run image
         run: |
           bash democluster/helpers/deploy_local_democluster.sh
