@@ -37,7 +37,7 @@
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
-CLOUD_IMAGE_URL=https://omnivector-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
+CLOUD_IMAGE_URL=https://vantage-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
 CLOUD_IMAGE_DEST=/tmp/democluster.img
 
 download_cloud_image () {
@@ -62,11 +62,11 @@ launch_instance () {
 
   # Set the environment to the empty string if not supplied
   if [ -z $ENV ]; then
-      BASE_API_URL="https://apis.vantagehpc.io"
-      OIDC_DOMAIN="auth.vantagehpc.io/realms/vantage"
+      BASE_API_URL="https://apis.vantagecompute.ai"
+      OIDC_DOMAIN="auth.vantagecompute.ai/realms/vantage"
   else
-      BASE_API_URL="https://apis.${ENV}.vantagehpc.io"
-      OIDC_DOMAIN="auth.${ENV}.vantagehpc.io/realms/vantage"
+      BASE_API_URL="https://apis.${ENV}.vantagecompute.ai"
+      OIDC_DOMAIN="auth.${ENV}.vantagecompute.ai/realms/vantage"
   fi
 
   # Create the cloud-init file and launch the demo cluster instance.
@@ -100,10 +100,12 @@ runcmd:
   - systemctl restart slurmctld
   - scontrol update NodeName=\$(hostname) State=RESUME
   - snap set vantage-agent base-api-url=$BASE_API_URL
+  - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
   - snap set vantage-agent oidc-client-id=$CLIENT_ID
   - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
   - snap set vantage-agent task-jobs-interval-seconds=30
   - snap set jobbergate-agent base-api-url=$BASE_API_URL
+  - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
   - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
   - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
   - snap set jobbergate-agent task-jobs-interval-seconds=30
