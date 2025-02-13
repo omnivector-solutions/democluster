@@ -50,3 +50,49 @@ jobs:
         run: |
           poetry run mypy image_factory --pretty
           poetry run ruff check image_factory
+
+  synth-stack:
+    name: synth-stack
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.8.0'
+
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: 1.8.3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          cache: 'poetry'
+
+      - name: Install CDK
+        run: |
+          npm install -g aws-cdk@2.178.2
+  
+      - name: Cache cdk.out
+        uses: actions/cache@v4
+        with:
+          path: cdk.out
+          key: cdk-out
+
+      - name: Setup AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install Python packages
+        run: |
+          poetry install --with=website
+
+      - name: Publish the deploy script
+        run: |
+          cdk synth --path-metadata false --version-reporting false

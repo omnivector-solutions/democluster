@@ -19,6 +19,10 @@ black = "^24.3.0"
 [tool.poetry.group.dev.dependencies]
 types-pyyaml = "^6.0.12.11"
 
+
+[tool.poetry.group.website.dependencies]
+aws-cdk-lib = "^2"
+
 [tool.black]
 line-length = 110
 src = ["image_factory"]
