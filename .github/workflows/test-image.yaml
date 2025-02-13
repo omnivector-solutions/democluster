@@ -1,0 +1,56 @@
+name: "Run image and test it"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  call-build-workflow:
+    name: call-build-workflow
+    uses: .github/workflows/build-image.yml
+    with:
+      jobbergate_version: "4.3.1"
+
+  validate-image:
+    name: copy-image
+    runs-on: self-hosted
+    needs: call-build-workflow
+    steps:
+      - name: Copy built image to target location
+        run: |
+          cp democluster/final/democluster.img .
+      - name: run image
+        run: |
+          bash democluster/helpers/deploy_local_democluster.sh
+      - name: valitate snaps
+        run: |
+          SNAP_LIST=$(multipass exec democluster -- snap list)
+          SNAPS=("vantage-agent" "jobbergate-agent")
+
+          for SNAP in "${SNAPS[@]}"; do
+            if echo "$SNAP_LIST" | grep -q "$SNAP"; then
+              echo "$SNAP is installed."
+            else
+              echo "$SNAP is NOT installed."
+              exit 1
+            fi
+          done
+      - name: check slurm is active
+        run: |
+          multipass exec democluster -- systemctl is-active slurmd
+      - name: test srun
+        run: |
+          multipass exec democluster -- srun ls
+      - name: check influx-db
+        run: |
+          multipass exec democluster -- systemctl is-active influxdb
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Performing cleanup..."
+          multipass stop democluster || true
+          multipass delete democluster -p || true
+          rm democluster.img || true
+          echo "Cleanup complete."
