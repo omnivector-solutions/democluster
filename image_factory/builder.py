@@ -61,7 +61,7 @@ def democluster(
     print(f"Launching build instance: {instance_name}")
     lxc.launch(
         instance_name=instance_name,
-        image="ubuntu/jammy/amd64",
+        image="ubuntu/noble/amd64",
         image_remote="local",
         project=ctx.obj.project_name,
         config_keys={"limits.cpu": "8", "limits.memory": "6GiB"},
