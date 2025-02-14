@@ -12,8 +12,8 @@ jobs:
   #   uses: ./.github/workflows/build-image.yml
   #   with:
   #     sha: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-  call-build-workflow:
-    name: call-build-workflow
+  validate-image:
+    name: validate-image
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -30,11 +30,6 @@ jobs:
         run: |
           poetry run image-factory build democluster
 
-  validate-image:
-    name: validate-image
-    runs-on: self-hosted
-    needs: call-build-workflow
-    steps:
       - name: Copy built image to target location
         run: |
           cp democluster/final/democluster.img .
