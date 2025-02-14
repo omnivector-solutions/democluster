@@ -230,7 +230,7 @@ packages:
 - slurmd
 - mpich
 - python3-venv
-- apptainer
+- apptainer-suid
 - influxdb
 - influxdb-client
 
