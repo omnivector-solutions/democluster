@@ -1,17 +1,9 @@
 name: "Run image and test it"
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
 
 jobs:
-  # call-build-workflow:
-  #   name: call-build-workflow
-  #   uses: ./.github/workflows/build-image.yml
-  #   with:
-  #     sha: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
   validate-image:
     name: validate-image
     runs-on: self-hosted
@@ -33,11 +25,10 @@ jobs:
       - name: Copy built image to target location
         run: |
           cp democluster/final/democluster.img .
-      - name: Install multipass
-        run: |
-           sudo snap install multipass
       - name: run image
         run: |
+          pwd
+          ls -l democluster.img
           bash democluster/helpers/deploy_local_democluster.sh
       - name: valitate snaps
         run: |
