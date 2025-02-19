@@ -12,7 +12,7 @@
 # Usage:
 #   1. Provide your CLIENT_ID and CLIENT_SECRET as command-line arguments:
 #      ```
-#      ./deploy-democluster.sh <CLIENT_ID> <CLIENT_SECRET>
+#      ./deploy-democluster.sh <CLIENT_ID> <CLIENT_SECRET> [<ENV>]
 #      ```
 #   2. The script will identify the host's operating system and install
 #      necessary dependencies (Multipass, Homebrew, etc.) accordingly.
@@ -29,16 +29,34 @@
 #     match your desired configuration.
 #
 # Notes:
-#   - This script has been tested on both Ubuntu 20.04 and 22.04.
+#   - This script has been tested on both Ubuntu 22.04.
 #   - Ensure you have appropriate permissions to execute system-level commands.
 #   - Logging is recommended for monitoring the script's progress.
+#   - The `ENV` parameter is optional and defaults to the production environment.
 #
 ################################################################################
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
+ENV=$3
 CLOUD_IMAGE_URL=https://vantage-public-assets.s3.us-west-2.amazonaws.com/cloud-images/democluster/latest/democluster.img
 CLOUD_IMAGE_DEST=/tmp/democluster.img
+
+perform_variable_checks () {
+  # Check if CLIENT_ID and CLIENT_SECRET are provided.
+  if [ -z $CLIENT_ID ] || [ -z $CLIENT_SECRET ]; then
+    echo "Please provide your CLIENT_ID and CLIENT_SECRET as command-line arguments."
+    exit 1
+  fi
+
+  # Check if ENV is set to a valid value
+  if [ -n "$ENV" ]; then
+    if [[ "$ENV" != "staging" && "$ENV" != "qa" && "$ENV" != "dev" ]]; then
+      echo "Invalid ENV value. It must be one of 'staging', 'qa' or 'dev'."
+      exit 1
+    fi
+  fi
+}
 
 download_cloud_image () {
   # Download the demo cluster cloud image and outputs to $1.
@@ -64,14 +82,27 @@ launch_instance () {
   if [ -z $ENV ]; then
       BASE_API_URL="https://apis.vantagecompute.ai"
       OIDC_DOMAIN="auth.vantagecompute.ai/realms/vantage"
+      SNAP_CHANNEL="stable"
   else
       BASE_API_URL="https://apis.${ENV}.vantagecompute.ai"
       OIDC_DOMAIN="auth.${ENV}.vantagecompute.ai/realms/vantage"
+      if [ "$ENV" == "dev" ]; then
+          SNAP_CHANNEL="edge"
+      elif [ "$ENV" == "qa" ]; then
+          SNAP_CHANNEL="beta"
+      else
+          SNAP_CHANNEL="candidate"
+      fi
   fi
 
   # Create the cloud-init file and launch the demo cluster instance.
   cat <<EOF > /tmp/cloud-init.yaml
 #cloud-config
+snap:
+  commands:
+    0: snap install vantage-agent --channel=$SNAP_CHANNEL --classic
+    1: snap install jobbergate-agent --channel=$SNAP_CHANNEL --classic
+
 runcmd:
   - sed -i "s|@HEADNODE_HOSTNAME@|\$(hostname)|g" /etc/slurm/slurmdbd.conf
   - sed -i "s|@HEADNODE_ADDRESS@|\$(hostname -I | awk '{print \$1}')|g" /etc/slurm/slurm.conf
@@ -139,6 +170,9 @@ fi
 cleanup () {
   rm -f /tmp/cloud-init.yaml
 }
+
+# Perform variable checks.
+perform_variable_checks
 
 # Launch democluster.
 launch_instance
