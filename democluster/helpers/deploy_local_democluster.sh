@@ -41,11 +41,11 @@ EOF
 
 mkdir -p $HOME/democluster
 
-cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
+cat /tmp/cloud-init.yaml | multipass launch --verbose -c$(nproc) \
 -m4GB \
 --mount $HOME/democluster:/home/ubuntu/democluster \
 -ndemocluster \
-file://`pwd`/democluster.img \
+file://`pwd`/democluster/final/democluster.img \
 --cloud-init -
 
 rm -f /tmp/cloud-init.yaml
