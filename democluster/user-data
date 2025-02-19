@@ -366,11 +366,6 @@ packages:
 - influxdb
 - influxdb-client
 
-snap:
-  commands:
-    0: snap install vantage-agent --channel=stable --classic
-    1: snap install jobbergate-agent --channel=stable --classic
-
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
