@@ -175,7 +175,7 @@ cleanup () {
 perform_variable_checks
 
 # Launch democluster.
-launch_instance /home/matheus/allcode/github/omnivector/democluster/democluster/final/democluster.img
+launch_instance
 
 # register the cleanup function to be called on the EXIT signal
 trap cleanup EXIT
