@@ -58,8 +58,9 @@ mkdir -p $HOME/democluster
 
 cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
 -m4GB \
+-d8GB \
 --mount $HOME/democluster:/nfs/mnt \
--ndemocluster-next \
+-ndemocluster \
 file://`pwd`/democluster.img \
 --cloud-init -
 
