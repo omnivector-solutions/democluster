@@ -139,7 +139,6 @@ runcmd:
   - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
   - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
   - snap set jobbergate-agent task-jobs-interval-seconds=10
-  - snap set jobbergate-agent x-slurm-user-name=root
   - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
   - snap start vantage-agent.start --enable
   - snap start jobbergate-agent.start --enable
