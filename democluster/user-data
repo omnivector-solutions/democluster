@@ -231,15 +231,12 @@ packages:
 - influxdb
 - influxdb-client
 
-<<<<<<< HEAD
-=======
 snap:
   commands:
     0: snap install vantage-agent --channel=stable --classic
     1: snap install jobbergate-agent --channel=stable --classic
     2: snap install multipass-sshfs
 
->>>>>>> da9f132 (increase image size on launch)
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
