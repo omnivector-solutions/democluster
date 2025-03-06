@@ -66,7 +66,6 @@ write_files:
 
     # Accounting
     AcctGatherProfileType=acct_gather_profile/influxdb
-    #AcctGatherInterconnectType=acct_gather_interconnect/sysfs
     AcctGatherNodeFreq=10
     JobAcctGatherType=jobacct_gather/linux
     JobAcctGatherFrequency="task=5"
@@ -78,7 +77,6 @@ write_files:
     AccountingStorageHost=@HEADNODE_ADDRESS@
     AccountingStorageUser=slurm
     AccountingStoragePort=6839
-    #AccountingStorageTRES=ic/sysfs
 
     # Node Configurations
     NodeName=@HEADNODE_HOSTNAME@ NodeAddr=@HEADNODE_ADDRESS@ CPUs=@CPUs@ ThreadsPerCore=@THREADS_PER_CORE@ CoresPerSocket=@CORES_PER_SOCKET@ Sockets=@SOCKETS@ RealMemory=@REAL_MEMORY@
@@ -124,7 +122,6 @@ write_files:
     ProfileInfluxDBPass=rats
     ProfileInfluxDBUser=slurm
     ProfileInfluxDBRTPolicy=three_days
-    #SysfsInterfaces=lo,ens3
 
 users:
 - name: root
@@ -234,6 +231,15 @@ packages:
 - influxdb
 - influxdb-client
 
+<<<<<<< HEAD
+=======
+snap:
+  commands:
+    0: snap install vantage-agent --channel=stable --classic
+    1: snap install jobbergate-agent --channel=stable --classic
+    2: snap install multipass-sshfs
+
+>>>>>>> da9f132 (increase image size on launch)
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
