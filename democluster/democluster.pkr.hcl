@@ -29,7 +29,7 @@ locals {
 
 variable "ubuntu_series" {
   type        = string
-  default     = "jammy"
+  default     = "noble"
   description = "The codename of the Ubuntu series to build."
 }
 
@@ -69,8 +69,8 @@ source "qemu" "stage0" {
     ["-cpu", "${lookup(local.qemu_cpu, var.architecture, "")}"],
     ["-serial", "stdio"],
     ["-device", "virtio-gpu-pci"],
-    ["-drive", "if=pflash,format=raw,id=ovmf_code,readonly=on,file=/usr/share/${lookup(local.uefi_imp, var.architecture, "")}/${lookup(local.uefi_imp, var.architecture, "")}_CODE.fd"],
-    ["-drive", "if=pflash,format=raw,id=ovmf_vars,file=${lookup(local.uefi_imp, var.architecture, "")}_VARS.fd"],
+    ["-drive", "if=pflash,format=raw,id=ovmf_code,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd"],
+    ["-drive", "if=pflash,format=raw,id=ovmf_vars,file=/usr/share/OVMF/OVMF_VARS_4M.fd"],
     ["-drive", "file=seeds-cloudimg.iso,format=raw"],
     ["-drive", "file=output-stage0/packer-stage0,format=qcow2"]
   ]
@@ -86,7 +86,7 @@ build {
 
   provisioner "shell-local" {
     inline = [
-      "cp /usr/share/${lookup(local.uefi_imp, var.architecture, "")}/${lookup(local.uefi_imp, var.architecture, "")}_VARS.fd ${lookup(local.uefi_imp, var.architecture, "")}_VARS.fd",
+      "cp /usr/share/OVMF/OVMF_VARS_4M.fd OVMF_VARS_4M.fd",
       "cloud-localds seeds-cloudimg.iso user-data meta-data"
     ]
     inline_shebang = "/bin/bash -e"

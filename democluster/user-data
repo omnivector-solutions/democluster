@@ -1,183 +1,5 @@
 #cloud-config
 write_files:
-- path: /usr/share/keyrings/apptainer.asc
-  owner: root:root
-  permissions: '0644'
-  content: |
-    -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Comment: Hostname:
-    Version: Hockeypuck 2.1.0-223-gdc2762b
-
-    xsFNBGPKLe0BEADKAHtUqLFryPhZ3m6uwuIQvwUr4US17QggRrOaS+jAb6e0P8kN
-    1clzJDuh3C6GnxEZKiTW3aZpcrW/n39qO263OMoUZhm1AliqiViJgthnqYGSbMgZ
-    /OB6ToQeHydZ+MgI/jpdAyYSI4Tf4SVPRbOafLvnUW5g/vJLMzgTAxyyWEjvH9Lx
-    yjOAXpxubz0Wu2xcoefN0mKCpaPsa9Y8xmog1lsylU+H/4BX6yAG7zt5hIvadc9Z
-    Y/vkDLh8kNaEtkXmmnTqGOsLgH6Nc5dnslR6Gwq966EC2Jbw0WbE50pi4g21s6Wi
-    wdU27/XprunXhhLdv6PYUaqdXxPRdBh+9u0LmNZsAyUxT6EgN05TAWFtaMOz7I3B
-    V6IpHuLqmIcnqulHrLi+0D/aiCv53WEZrBRmDBGX7p52lcyS+Q+LFf0+iYeY7pRG
-    fPXboBDr+6DelkYFIxam06purSGR3T9RJyrMP7qMWiInWxcxBoCMNfy8VudP0DAy
-    r2yXmHZbgSGjfJey03dnNwQH7huBcQ1VLEqtL+bjn3HubmYK87FltX7xomETFqcl
-    QmiT+WBttFRGtO6SFHHiBXOXUn0ihwabtr6gRKeJssCnFS3Y46RDv4z3Je92roLt
-    TPY8F9CgZrGiAoKq530BzEhJB6vfW3faRnLKdLePX/LToCP0g2t2jKwkzQARAQAB
-    zRtMYXVuY2hwYWQgUFBBIGZvciBBcHB0YWluZXLCwY4EEwEKADgWIQT2sPUZPU8z
-    Ae9JH/Cv42U0/GIYrgUCY8ot7QIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAK
-    CRCv42U0/GIYrut4EAC06vTJP2wgnh3BIZ3n2HKaSp4QsuYKS7F7UQJ5Yt+PpnKn
-    Pgjq3R4fYzOHyASv+TCj9QkMaeqWGWb6Zw0n47EtrCW9U5099Vdk2L42KjrqZLiW
-    qQ11hwWXUlc1ZYSOb0J4WTumgO6MrUCFkmNrbRE7yB42hxr/AU/XNM38YjN2NyOK
-    2gvORRKFwlLKrjE+70HmoCW09Yk64BZl1eCubM/qy5tKzSlC910uz87FvZmrGKKF
-    rXa2HGlO4O3Ty7bMSeRKl9m1OYuffAXNwp3/Vale9eDHOeq58nn7wU9pSosmqrXb
-    SLOwqQylc1YoLZMj+Xjx644xm5e2bhyD00WiHeqHmvlfQQWCWaPt4i4K0nJuYXwm
-    BCA6YUgSfDZJfg/FxJdU7ero5F9st2GK4WDBiz+1Eftw6Ik/WnMDSxXaZ8pwnd9N
-    +aAEc/QKP5e8kjxJMC9kfvXGUVzZuMbkUV+PycZhUWl4Aelua91lnTicVYfpuVCC
-    GqY0StWQeOxLJneI+1FqLFoBOZghzoTY5AYCp99RjKqQvY1vF4uErltmNeN1vtBm
-    CZyDOLQuQfqWWAunUwXVuxMJIENSVeLXunhu9ac24Vnf2rFqH4XVMDxiKc6+sv+v
-    fKpamSQOUSmfWJTnry/LiYbspi1OB2x3GQk3/4ANw0S4L83A6oXHUMg8x7/sZw==
-    =E71P
-    -----END PGP PUBLIC KEY BLOCK-----
-
-- path: /usr/share/keyrings/slurm.asc
-  owner: root:root
-  permissions: '0644'
-  content: |
-    -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Comment: Hostname:
-    Version: Hockeypuck 2.1.0-223-gdc2762b
-
-    xsFNBGTuZb8BEACtJ1CnZe6/hv84DceHv+a54y3Pqq0gqED0xhTKnbj/E2ByJpmT
-    NlDNkpeITwPAAN1e3824Me76Qn31RkogTMoPJ2o2XfG253RXd67MPxYhfKTJcnM3
-    CEkmeI4u2Lynh3O6RQ08nAFS2AGTeFVFH2GPNWrfOsGZW03Jas85TZ0k7LXVHiBs
-    W6qonbsFJhshvwC3SryG4XYT+z/+35x5fus4rPtMrrEOD65hij7EtQNaE8owuAju
-    Kcd0m2b+crMXNcllWFWmYMV0VjksQvYD7jwGrWeKs+EeHgU8ZuqaIP4pYHvoQjag
-    umqnH9Qsaq5NAXiuAIAGDIIV4RdAfQIR4opGaVgIFJdvoSwYe3oh2JlrLPBlyxyY
-    dayDifd3X8jxq6/oAuyH1h5K/QLs46jLSR8fUbG98SCHlRmvozTuWGk+e07ALtGe
-    sGv78ToHKwoM2buXaTTHMwYwu7Rx8LZ4bZPHdersN1VW/m9yn1n5hMzwbFKy2s6/
-    D4Q2ZBsqlN+5aW2q0IUmO+m0GhcdaDv8U7RVto1cWWPr50HhiCi7Yvei1qZiD9jq
-    57oYZVqTUNCTPxi6NeTOdEc+YqNynWNArx4PHh38LT0bqKtlZCGHNfoAJLPVYhbB
-    b2AHj9edYtHU9AAFSIy+HstET6P0UDxy02IeyE2yxoUBqdlXyv6FL44E+wARAQAB
-    zRxMYXVuY2hwYWQgUFBBIGZvciBVYnVudHUgSFBDwsGOBBMBCgA4FiEErocSHcPk
-    oLD4H/Aj9tDF1ca+s3sFAmTuZb8CGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AA
-    CgkQ9tDF1ca+s3sz3w//RNawsgydrutcbKf0yphDhzWS53wgfrs2KF1KgB0u/H+u
-    6Kn2C6jrVM0vuY4NKpbEPCduOj21pTCepL6PoCLv++tICOLVok5wY7Zn3WQFq0js
-    Iy1wO5t3kA1cTD/05v/qQVBGZ2j4DsJo33iMcQS5AjHvSr0nu7XSvDDEE3cQE55D
-    87vL7lgGjuTOikPh5FpCoS1gpemBfwm2Lbm4P8vGOA4/witRjGgfC1fv1idUnZLM
-    TbGrDlhVie8pX2kgB6yTYbJ3P3kpC1ZPpXSRWO/cQ8xoYpLBTXOOtqwZZUnxyzHh
-    gM+hv42vPTOnCo+apD97/VArsp59pDqEVoAtMTk72fdBqR+BB77g2hBkKESgQIEq
-    EiE1/TOISioMkE0AuUdaJ2ebyQXugSHHuBaqbEC47v8t5DVN5Qr9OriuzCuSDNFn
-    6SBHpahN9ZNi9w0A/Yh1+lFfpkVw2t04Q2LNuupqOpW+h3/62AeUqjUIAIrmfeML
-    IDRE2VdquYdIXKuhNvfpJYGdyvx/wAbiAeBWg0uPSepwTfTG59VPQmj0FtalkMnN
-    ya2212K5q68O5eXOfCnGeMvqIXxqzpdukxSZnLkgk40uFJnJVESd/CxHquqHPUDE
-    fy6i2AnB3kUI27D4HY2YSlXLSRbjiSxTfVwNCzDsIh7Czefsm6ITK2+cVWs0hNQ=
-    =cs1s
-    -----END PGP PUBLIC KEY BLOCK-----
-
-- path: /var/lib/slurm/slurmctld/jwt_hs256.key
-  owner: root:root
-  permissions: '0600'
-  content: |
-    -----BEGIN PRIVATE KEY-----
-    MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCmqTS7aRCRP4zA
-    Gbfc5dp7uqquMnRrwqdugMUl+SWxobU8WLBz/AHngphwhsbGG7sb4D6gRT0q4RXx
-    2K+Gi4Fb6TUlgCL+1sP5vRDg/fBxeduZ9XGUSPJl3zmEdJoyQiXH783d1K/szu56
-    x0IVGAxfDl9Nqgw4awSisETxfocdfgdrBTk4Ol8xPAeCAdDG/RAdnb/iKsNFJGEp
-    BKq6bxpauZbrBlcL4r0sq6qnuJ22z+/jWYODZWQN5oPkzEpW5+f6nrlDeypq7fod
-    nSwKTZlPfTExfeCfTCByU11Rh9AUZJ5wx+mjZMmWtQN8mfBr02uok3ymuggmVfs8
-    3PmsQ7jdAgMBAAECggEAHoQdA7PZNL9OJl6PLANqXf1wAzV528FopvMtJibYoA3c
-    AZC7voEGWD2xa+lBvESXniMRVIdZC+DrA72JZjllFk89TACKZ98rQy87R/c3b4/A
-    hhBLG7u/pqeZAIfZNBqokFN4foXTMKkzQYf6saIVodIf4TihxDLURnXAKffhBaUi
-    EiuqWLD9y5y7/gdNCyGTKCXlZdxit9j8vk0OGWQ2i/2lMFeTF/OjNAy7M1JFbZox
-    BKUcUonn8T9kuX6CCe4ZID3JkK/kMX70yvy6JOYhpZJfAvo2TSc4W+PBDK/3yCHn
-    JhAMk9lhmlmCKNwTIBZgIBUAXTrV/9YAlcDi9cooAQKBgQC+c4kGOaITMqIKfNdW
-    zYF/NZqceBL8TU7SKbtEm3hUtmVERA0kOiquGzvqAWVo+7AFIKM17enr9GbXHlHm
-    nGdnPPYIaabpRiKSsRrZ5sVO9QR97bPAqpQpRX30r4OJfTIrt/J5D+llWpFTt3jo
-    8LpPoPfk5iwJltXsyB7X9S5IDQKBgQDgBYcyOAnSjWVCw49GYZ5rJvc+eGQNiKay
-    roXkRtnCkMixPpgvwd/Bw0XI1zCLbqyTZ3IECLhYHh7zPeAzwwhJ0lUyP6+gr/3J
-    hAdU1bPXam2uB9wEffzMGc1IMmEF5+LuzCLduDgIVi9dzK0PwTXG5mOaxs0SeLdX
-    7uicy0iwEQKBgE7TWPJXpkpV2ZWHqEUIF8ID+LMsS4dbo/T+SsERrBM7ztwbYmkN
-    Hh8jrH+lBkkWavskUAkBKKF9bZc5uGI/d9jV9Wrz955zZdnbLabkieOtK6fHW2+x
-    6lLOrVw5zLJ6O+q2XshWmp5VhvLkbEnVYPeWQyPdVHq/kFlJVuLBWt99AoGAIQiv
-    pvgceq/e/rlXp0k90w8r5kpadqRv8GlL1R2dftNaxMg2KNSt6iShZbxVrDnluNbI
-    OVAP3u6SIcw+A2P/FOOvLHm3rDpHci/F5PyeSGWpRsBh8Ueiv3YOj1bed8B59jyj
-    544CtTgARBSqcGhNRcczaN9n3hFu98iDBJv1XAECgYAVVt+WGc9RzzdPuHxEH4+e
-    BYmnztvU0yu/lfb27suvWdOigXScSUovk7PSOMWaFJZY6bbPngi/3Qr03Ymq+8mO
-    jvkPMx7s8qxEGmm4kGz5zduFO0iDEmI6ap8ySgnmLQ46dRgUVUuoVAySHf1MDKVw
-    /4qZoQl8ajrMOcXfLOzg1Q==
-    -----END PRIVATE KEY-----
-
-- path: /usr/share/keyrings/influxdb.asc
-  owner: root:root
-  permissions: '0644'
-  content: |
-    -----BEGIN PGP PUBLIC KEY BLOCK-----
-    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
-    mkkO7wkTEAhz6IuBGjMg
-    =mg0I
-    -----END PGP PUBLIC KEY BLOCK-----
-
-- path: /etc/slurm/slurmrestd.conf
-  owner: root:root
-  permissions: '0600'
-  content: |
-    include /etc/slurm/slurm.conf
-    AuthType=auth/jwt
-
 - path: /etc/slurm/oci.conf
   owner: root:root
   permissions: '0644'
@@ -194,7 +16,7 @@ write_files:
   owner: root:root
   permissions: '0644'
   content: |
-    ClusterName=demo-cluster
+    ClusterName=democluster
 
     SlurmUser=slurm
     SlurmdUser=root
@@ -205,10 +27,6 @@ write_files:
 
     AuthType=auth/munge
     AuthInfo="socket=/var/run/munge/munge.socket.2"
-    AuthAltTypes=auth/jwt
-    AuthAltParameters="jwt_key=/var/lib/slurm/slurmctld/jwt_hs256.key"
-
-    SwitchType=switch/none
 
     SlurmctldPidFile=/var/run/slurmctld.pid
     SlurmdPidFile=/var/run/slurmd.pid
@@ -224,32 +42,35 @@ write_files:
     PlugStackConfig=/etc/slurm/plugstack.conf
 
     ProctrackType=proctrack/linuxproc
+
     ReturnToService=2
+    RebootProgram="/usr/sbin/reboot --reboot"
+    MailProg=/usr/bin/mail.mailutils
 
     # Timers
     SlurmctldTimeout=300
     SlurmdTimeout=60
     InactiveLimit=0
-    MinJobAge=300
+    MinJobAge=86400
     KillWait=30
     Waittime=0
 
     # Scheduling
     SchedulerType=sched/backfill
-    SelectType=select/cons_res
-    SelectTypeParameters=CR_Core
+    SelectType=select/cons_tres
+    SelectTypeParameters=CR_CPU_Memory
 
     # Logging
     SlurmctldDebug=3
     SlurmdDebug=3
-    DebugFlags=NO_CONF_HASH
-    JobCompType=jobcomp/none
 
     # Accounting
-    JobAcctGatherType=jobacct_gather/cgroup
-    JobAcctGatherFrequency="task=10"
-    AcctGatherNodeFreq=10
     AcctGatherProfileType=acct_gather_profile/influxdb
+    AcctGatherNodeFreq=10
+    JobAcctGatherType=jobacct_gather/linux
+    JobAcctGatherFrequency="task=5"
+
+    TaskPlugin="task/affinity"
 
     # Slurmdbd
     AccountingStorageType=accounting_storage/slurmdbd
@@ -263,6 +84,7 @@ write_files:
     # Partition Configurations
     PartitionName=compute Nodes=@HEADNODE_HOSTNAME@ MaxTime=INFINITE State=UP Default=Yes
 
+
 - path: /etc/slurm/slurmdbd.conf
   owner: root:root
   permissions: '0600'
@@ -272,8 +94,6 @@ write_files:
 
     AuthType=auth/munge
     AuthInfo=socket=/var/run/munge/munge.socket.2
-    AuthAltTypes=auth/jwt
-    AuthAltParameters="jwt_key=/var/lib/slurm/slurmctld/jwt_hs256.key"
 
     SlurmUser=slurm
 
@@ -291,24 +111,6 @@ write_files:
     StorageLoc=slurm
 
     DebugLevel=info
-
-    ArchiveEvents="yes"
-    ArchiveJobs="yes"
-    ArchiveResvs="yes"
-    ArchiveSteps="no"
-    ArchiveSuspend="no"
-    ArchiveTXN="no"
-    ArchiveUsage="no"
-
-    #ArchiveScript=/usr/sbin/slurm.dbd.archive
-
-    PurgeEventAfter="1month"
-    PurgeJobAfter="12month"
-    PurgeResvAfter="1month"
-    PurgeStepAfter="1month"
-    PurgeSuspendAfter="1month"
-    PurgeTXNAfter="12month"
-    PurgeUsageAfter="24month"
 
 - path: /etc/slurm/acct_gather.conf
   owner: root:root
@@ -345,26 +147,95 @@ package_update: true
 
 apt:
   sources:
-    slurm-wlm:
-      source: "deb [signed-by=/usr/share/keyrings/slurm.asc] https://ppa.launchpadcontent.net/ubuntu-hpc/slurm-wlm-23.02/ubuntu/ jammy main"
+    ubuntu-hpc:
+        source: "deb https://ppa.launchpadcontent.net/ubuntu-hpc/experimental/ubuntu noble main"
+        key: |
+           -----BEGIN PGP PUBLIC KEY BLOCK-----
+           Comment: Hostname:
+           Version: Hockeypuck 2.2
+
+           xsFNBGTuZb8BEACtJ1CnZe6/hv84DceHv+a54y3Pqq0gqED0xhTKnbj/E2ByJpmT
+           NlDNkpeITwPAAN1e3824Me76Qn31RkogTMoPJ2o2XfG253RXd67MPxYhfKTJcnM3
+           CEkmeI4u2Lynh3O6RQ08nAFS2AGTeFVFH2GPNWrfOsGZW03Jas85TZ0k7LXVHiBs
+           W6qonbsFJhshvwC3SryG4XYT+z/+35x5fus4rPtMrrEOD65hij7EtQNaE8owuAju
+           Kcd0m2b+crMXNcllWFWmYMV0VjksQvYD7jwGrWeKs+EeHgU8ZuqaIP4pYHvoQjag
+           umqnH9Qsaq5NAXiuAIAGDIIV4RdAfQIR4opGaVgIFJdvoSwYe3oh2JlrLPBlyxyY
+           dayDifd3X8jxq6/oAuyH1h5K/QLs46jLSR8fUbG98SCHlRmvozTuWGk+e07ALtGe
+           sGv78ToHKwoM2buXaTTHMwYwu7Rx8LZ4bZPHdersN1VW/m9yn1n5hMzwbFKy2s6/
+           D4Q2ZBsqlN+5aW2q0IUmO+m0GhcdaDv8U7RVto1cWWPr50HhiCi7Yvei1qZiD9jq
+           57oYZVqTUNCTPxi6NeTOdEc+YqNynWNArx4PHh38LT0bqKtlZCGHNfoAJLPVYhbB
+           b2AHj9edYtHU9AAFSIy+HstET6P0UDxy02IeyE2yxoUBqdlXyv6FL44E+wARAQAB
+           zRxMYXVuY2hwYWQgUFBBIGZvciBVYnVudHUgSFBDwsGOBBMBCgA4FiEErocSHcPk
+           oLD4H/Aj9tDF1ca+s3sFAmTuZb8CGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AA
+           CgkQ9tDF1ca+s3sz3w//RNawsgydrutcbKf0yphDhzWS53wgfrs2KF1KgB0u/H+u
+           6Kn2C6jrVM0vuY4NKpbEPCduOj21pTCepL6PoCLv++tICOLVok5wY7Zn3WQFq0js
+           Iy1wO5t3kA1cTD/05v/qQVBGZ2j4DsJo33iMcQS5AjHvSr0nu7XSvDDEE3cQE55D
+           87vL7lgGjuTOikPh5FpCoS1gpemBfwm2Lbm4P8vGOA4/witRjGgfC1fv1idUnZLM
+           TbGrDlhVie8pX2kgB6yTYbJ3P3kpC1ZPpXSRWO/cQ8xoYpLBTXOOtqwZZUnxyzHh
+           gM+hv42vPTOnCo+apD97/VArsp59pDqEVoAtMTk72fdBqR+BB77g2hBkKESgQIEq
+           EiE1/TOISioMkE0AuUdaJ2ebyQXugSHHuBaqbEC47v8t5DVN5Qr9OriuzCuSDNFn
+           6SBHpahN9ZNi9w0A/Yh1+lFfpkVw2t04Q2LNuupqOpW+h3/62AeUqjUIAIrmfeML
+           IDRE2VdquYdIXKuhNvfpJYGdyvx/wAbiAeBWg0uPSepwTfTG59VPQmj0FtalkMnN
+           ya2212K5q68O5eXOfCnGeMvqIXxqzpdukxSZnLkgk40uFJnJVESd/CxHquqHPUDE
+           fy6i2AnB3kUI27D4HY2YSlXLSRbjiSxTfVwNCzDsIh7Czefsm6ITK2+cVWs0hNQ=
+           =cs1s
+           -----END PGP PUBLIC KEY BLOCK-----
     apptainer:
-      source: "deb [signed-by=/usr/share/keyrings/apptainer.asc] https://ppa.launchpadcontent.net/apptainer/ppa/ubuntu jammy main"
+      source: "deb https://ppa.launchpadcontent.net/apptainer/ppa/ubuntu noble main"
+      key: |
+        -----BEGIN PGP PUBLIC KEY BLOCK-----
+        Comment: Hostname:
+        Version: Hockeypuck 2.1.0-223-gdc2762b
+    
+        xsFNBGPKLe0BEADKAHtUqLFryPhZ3m6uwuIQvwUr4US17QggRrOaS+jAb6e0P8kN
+        1clzJDuh3C6GnxEZKiTW3aZpcrW/n39qO263OMoUZhm1AliqiViJgthnqYGSbMgZ
+        /OB6ToQeHydZ+MgI/jpdAyYSI4Tf4SVPRbOafLvnUW5g/vJLMzgTAxyyWEjvH9Lx
+        yjOAXpxubz0Wu2xcoefN0mKCpaPsa9Y8xmog1lsylU+H/4BX6yAG7zt5hIvadc9Z
+        Y/vkDLh8kNaEtkXmmnTqGOsLgH6Nc5dnslR6Gwq966EC2Jbw0WbE50pi4g21s6Wi
+        wdU27/XprunXhhLdv6PYUaqdXxPRdBh+9u0LmNZsAyUxT6EgN05TAWFtaMOz7I3B
+        V6IpHuLqmIcnqulHrLi+0D/aiCv53WEZrBRmDBGX7p52lcyS+Q+LFf0+iYeY7pRG
+        fPXboBDr+6DelkYFIxam06purSGR3T9RJyrMP7qMWiInWxcxBoCMNfy8VudP0DAy
+        r2yXmHZbgSGjfJey03dnNwQH7huBcQ1VLEqtL+bjn3HubmYK87FltX7xomETFqcl
+        QmiT+WBttFRGtO6SFHHiBXOXUn0ihwabtr6gRKeJssCnFS3Y46RDv4z3Je92roLt
+        TPY8F9CgZrGiAoKq530BzEhJB6vfW3faRnLKdLePX/LToCP0g2t2jKwkzQARAQAB
+        zRtMYXVuY2hwYWQgUFBBIGZvciBBcHB0YWluZXLCwY4EEwEKADgWIQT2sPUZPU8z
+        Ae9JH/Cv42U0/GIYrgUCY8ot7QIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAK
+        CRCv42U0/GIYrut4EAC06vTJP2wgnh3BIZ3n2HKaSp4QsuYKS7F7UQJ5Yt+PpnKn
+        Pgjq3R4fYzOHyASv+TCj9QkMaeqWGWb6Zw0n47EtrCW9U5099Vdk2L42KjrqZLiW
+        qQ11hwWXUlc1ZYSOb0J4WTumgO6MrUCFkmNrbRE7yB42hxr/AU/XNM38YjN2NyOK
+        2gvORRKFwlLKrjE+70HmoCW09Yk64BZl1eCubM/qy5tKzSlC910uz87FvZmrGKKF
+        rXa2HGlO4O3Ty7bMSeRKl9m1OYuffAXNwp3/Vale9eDHOeq58nn7wU9pSosmqrXb
+        SLOwqQylc1YoLZMj+Xjx644xm5e2bhyD00WiHeqHmvlfQQWCWaPt4i4K0nJuYXwm
+        BCA6YUgSfDZJfg/FxJdU7ero5F9st2GK4WDBiz+1Eftw6Ik/WnMDSxXaZ8pwnd9N
+        +aAEc/QKP5e8kjxJMC9kfvXGUVzZuMbkUV+PycZhUWl4Aelua91lnTicVYfpuVCC
+        GqY0StWQeOxLJneI+1FqLFoBOZghzoTY5AYCp99RjKqQvY1vF4uErltmNeN1vtBm
+        CZyDOLQuQfqWWAunUwXVuxMJIENSVeLXunhu9ac24Vnf2rFqH4XVMDxiKc6+sv+v
+        fKpamSQOUSmfWJTnry/LiYbspi1OB2x3GQk3/4ANw0S4L83A6oXHUMg8x7/sZw==
+        =E71P
+        -----END PGP PUBLIC KEY BLOCK-----
 
 packages:
+- libpmix-dev
+- openmpi-bin
 - mysql-server
 - jq
 - logrotate
 - munge
 - slurmctld
-- slurmrestd
 - slurmdbd
 - slurm-client
 - slurmd
 - mpich
 - python3-venv
-- apptainer
+- apptainer-suid
 - influxdb
 - influxdb-client
+
+snap:
+  commands:
+    0: snap install vantage-agent --channel=stable --classic
+    1: snap install jobbergate-agent --channel=stable --classic
+    2: snap install multipass-sshfs
 
 bootcmd:
 - mkdir /run/packer_backup
@@ -373,10 +244,6 @@ bootcmd:
 - mkdir /run/packer_backup/etc/ssh
 - cp --preserve /etc/apt/sources.list /run/packer_backup/etc/apt/
 - cp --preserve /etc/ssh/sshd_config /run/packer_backup/etc/ssh/
-- apt install gpg -y
-- gpg --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys AE87121DC3E4A0B0F81FF023F6D0C5D5C6BEB37B
-- gpg --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys F6B0F5193D4F3301EF491FF0AFE36534FC6218AE
-- gpg --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 
 runcmd:
 - sed -i -e '/^[#]*PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
@@ -397,12 +264,8 @@ runcmd:
 - influx -execute 'CREATE DATABASE "slurm-job-metrics"'
 - influx -execute 'GRANT ALL ON "slurm-job-metrics" TO "slurm"'
 - influx -execute 'CREATE RETENTION POLICY "three_days" ON "slurm-job-metrics" DURATION 3d REPLICATION 1 DEFAULT'
-# set up slurmrestd user and group
-- groupadd --gid 64031 slurmrestd
-- adduser --system --gid 64031 --uid 64031 --no-create-home --home /nonexistent slurmrestd
-# Chown slurmdbd and jwt key
+# Chown slurmdbd.conf
 - chown slurm /etc/slurm/slurmdbd.conf
-- chown slurm /var/lib/slurm/slurmctld/jwt_hs256.key
 # create mungekey
 - dd if=/dev/urandom of=/etc/munge/munge.key bs=1 count=1024
 - chown munge:munge /etc/munge/munge.key
@@ -412,34 +275,8 @@ runcmd:
 - systemctl enable munge
 - systemctl start munge
 # make sure the daemons are running
-- systemctl daemon-reload
 - systemctl stop slurmdbd
 - systemctl stop slurmctld
-- systemctl stop slurmrestd
 - systemctl stop slurmd
-- |
-  cat <<EOF > /lib/systemd/system/slurmrestd.service
-  # Slurmrestd service unit provided by OSD
-  [Unit]
-  Description=Slurm REST daemon
-  After=network.target munge.service slurmctld.service
-  ConditionPathExists=/etc/slurm/slurm.conf
-  Documentation=man:slurmrestd(8)
-
-  [Service]
-  Type=simple
-  EnvironmentFile=-/etc/default/slurmrestd
-  # Default to local auth via socket
-  #ExecStart=/usr/sbin/slurmrestd $SLURMRESTD_OPTIONS unix:/run/slurmrestd.socket
-  # Uncomment to enable listening mode
-  Environment="SLURM_JWT=daemon"
-  ExecStart=/usr/sbin/slurmrestd $SLURMRESTD_OPTIONS -vv 0.0.0.0:6820
-  ExecReload=/bin/kill -HUP $MAINPID
-  User=slurmrestd
-  Group=slurmrestd
-
-  [Install]
-  WantedBy=multi-user.target
-  EOF
-
-- systemctl daemon-reload
+- mkdir -p /nfs/mnt
+- chmod 777 /nfs/mnt
