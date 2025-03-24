@@ -1,0 +1,89 @@
+name: "Run image and test it"
+
+on:
+  pull_request:
+
+jobs:
+  validate-image:
+    name: validate-image
+    runs-on: [self-hosted, nuc, X64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Install image-factory
+        run: |
+          poetry env use "3.12"
+          poetry install
+
+      - name: Build democluster
+        run: |
+          poetry run image-factory build democluster
+
+      - name: Copy built image to target location
+        run: |
+          cp democluster/final/democluster.img .
+
+      - name: run image
+        run: |
+          bash democluster/helpers/deploy_local_democluster.sh foo boo
+
+      - name: valitate snaps
+        run: |
+          SNAP_LIST=$(multipass exec democluster -- snap list)
+          SNAPS=("vantage-agent" "jobbergate-agent")
+
+          for SNAP in "${SNAPS[@]}"; do
+            if echo "$SNAP_LIST" | grep -q "$SNAP"; then
+              echo "$SNAP is installed."
+              SNAP_STATUS=$(multipass exec democluster -- snap services "$SNAP".daemon | awk 'END {print $3}')
+              if [ "$SNAP_STATUS" == "active" ]; then
+                echo "$SNAP is active."
+              else
+                echo "$SNAP is NOT active."
+                exit 1
+              fi
+            else
+              echo "$SNAP is NOT installed."
+              exit 1
+            fi
+          done
+
+      - name: check slurm is active
+        run: |
+          multipass exec democluster -- systemctl is-active slurmd
+
+      - name: test srun
+        run: |
+          multipass exec democluster -- srun ls
+
+      - name: check influx-db
+        run: |
+          multipass exec democluster -- systemctl is-active influxdb
+
+      - name: stress test
+        run: |
+          multipass transfer democluster/helpers/stress_democluster_cpu.sh democluster:/home/ubuntu
+          multipass exec democluster -- sbatch /home/ubuntu/stress_democluster_cpu.sh
+
+      - name: check stress test
+        run: |
+          sleep 120 # wait for the job to finish and metrics to be collected
+          MEASUREMENTS=$(multipass exec democluster -- influx -database 'slurm-job-metrics' -execute 'show measurements' -host 'localhost')
+          if echo "$MEASUREMENTS" | grep -q "CPUUtilization"; then
+            echo "CPUUtilization metric is present, which means metrics are available."
+          else
+            echo "CPUUtilization metric is NOT present, which means metrics ARE NOT available."
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Performing cleanup..."
+          multipass stop democluster || true
+          multipass delete democluster -p || true
+          rm democluster.img || true
+          echo "Cleanup complete."
