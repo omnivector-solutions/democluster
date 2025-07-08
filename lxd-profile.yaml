@@ -88,8 +88,9 @@ config:
 devices:
   eth0:
     name: eth0
-    network: lxdbr0
+    parent: "eno1.7-br0"
     type: nic
+    nictype: bridged
   root:
     path: /
     pool: default
