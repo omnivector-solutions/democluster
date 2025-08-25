@@ -281,4 +281,4 @@ runcmd:
 - chmod 777 /srv/vantage-nfs
 - wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | gunzip | tar xvf - -C /srv/vantage-nfs
 - cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /lib/systemd/system/vantage-jupyterhub.service
-- systemctl daemon-reloads
+- systemctl daemon-reload
