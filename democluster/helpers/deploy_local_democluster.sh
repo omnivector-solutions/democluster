@@ -88,6 +88,14 @@ runcmd:
   - snap start vantage-agent.start --enable
   - snap start jobbergate-agent.start --enable
   - |
+  mkdir -p /srv/vantage-nfs
+  chmod -R 777 /srv/vantage-nfs
+  wget -O /tmp/vantage-jupyterhub-venv-latest.tar.gz https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz
+  tar -xzvf /tmp/vantage-jupyterhub-venv-latest.tar.gz -C /srv/vantage-nfs
+  rm -f /tmp/vantage-jupyterhub-venv-latest.tar.gz
+  cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
+  systemctl daemon-reload
+  - |
     echo "JUPYTERHUB_VENV_DIR=/srv/vantage-nfs/vantage-jupyterhub" >> /etc/default/vantage-jupyterhub
     echo "OIDC_CLIENT_ID=$CLIENT_ID" >> /etc/default/vantage-jupyterhub
     echo "OIDC_CLIENT_SECRET=$CLIENT_SECRET" >> /etc/default/vantage-jupyterhub
@@ -103,7 +111,7 @@ mkdir -p $HOME/democluster || true
 cat /tmp/cloud-init.yaml | multipass launch --verbose -c$(nproc) \
 -m4GB \
 -d8GB \
---mount $HOME/democluster:/nfs/mnt \
+--mount $HOME/democluster:/srv/vantage-nfs \
 -ndemocluster \
 file://`pwd`/democluster/final/democluster.img \
 --cloud-init -
