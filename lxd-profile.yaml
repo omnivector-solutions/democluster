@@ -85,6 +85,7 @@ config:
       - nbdkit
       - fuse2fs
       - cloud-image-utils
+      - gzip
 devices:
   eth0:
     name: eth0

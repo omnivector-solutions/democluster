@@ -25,8 +25,8 @@ write_files:
     SlurmctldHost=@HEADNODE_HOSTNAME@
     SlurmctldAddr=@HEADNODE_ADDRESS@
 
-    AuthType=auth/munge
-    AuthInfo="socket=/var/run/munge/munge.socket.2"
+    AuthType=auth/slurm
+    CredType=auth/slurm
 
     SlurmctldPidFile=/var/run/slurmctld.pid
     SlurmdPidFile=/var/run/slurmd.pid
@@ -92,8 +92,7 @@ write_files:
     DbdHost=@HEADNODE_HOSTNAME@
     DbdPort=6839
 
-    AuthType=auth/munge
-    AuthInfo=socket=/var/run/munge/munge.socket.2
+    AuthType=auth/slurm
 
     SlurmUser=slurm
 
@@ -220,16 +219,17 @@ packages:
 - mysql-server
 - jq
 - logrotate
-- munge
 - slurmctld
 - slurmdbd
 - slurm-client
 - slurmd
-- mpich
 - python3-venv
 - apptainer-suid
 - influxdb
 - influxdb-client
+- parallel
+- wget
+- gzip
 
 snap:
   commands:
@@ -264,19 +264,21 @@ runcmd:
 - influx -execute 'CREATE DATABASE "slurm-job-metrics"'
 - influx -execute 'GRANT ALL ON "slurm-job-metrics" TO "slurm"'
 - influx -execute 'CREATE RETENTION POLICY "three_days" ON "slurm-job-metrics" DURATION 3d REPLICATION 1 DEFAULT'
-# Chown slurmdbd.conf
+# create slurm.key
+- openssl rand 2048 | base64 | tr -d '\n' > /etc/slurm/slurm.key
+# Chown conf files
 - chown slurm /etc/slurm/slurmdbd.conf
-# create mungekey
-- dd if=/dev/urandom of=/etc/munge/munge.key bs=1 count=1024
-- chown munge:munge /etc/munge/munge.key
-- chmod 600 /etc/munge/munge.key
-- chown -R munge /etc/munge/ /var/log/munge/
-- chmod 0700 /etc/munge/ /var/log/munge/
-- systemctl enable munge
-- systemctl start munge
+- chown slurm /etc/slurm/slurm.conf
+- chown slurm /etc/slurm/slurm.key
+- chmod 600 /etc/slurm/slurm.key
 # make sure the daemons are running
+- systemctl stop munge
+- systemctl disable munge
 - systemctl stop slurmdbd
 - systemctl stop slurmctld
 - systemctl stop slurmd
-- mkdir -p /nfs/mnt
-- chmod 777 /nfs/mnt
+- mkdir -p /srv/vantage-nfs
+- chmod 777 /srv/vantage-nfs
+- wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | gunzip | tar xvf - -C /srv/vantage-nfs
+- cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /lib/systemd/system/vantage-jupyterhub.service
+- systemctl daemon-reloads
