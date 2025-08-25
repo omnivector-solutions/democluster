@@ -229,7 +229,6 @@ packages:
 - influxdb-client
 - parallel
 - wget
-- gzip
 
 snap:
   commands:
@@ -280,9 +279,8 @@ runcmd:
 - |
   mkdir -p /srv/vantage-nfs
   chmod -R 777 /srv/vantage-nfs
-  cd /tmp
-  wget -q https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz
-  tar -xzf vantage-jupyterhub-venv-latest.tar.gz -C /srv/vantage-nfs
-  rm -f vantage-jupyterhub-venv-latest.tar.gz
+  wget -O /tmp/vantage-jupyterhub-venv-latest.tar.gz https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz
+  tar -xzvf /tmp/vantage-jupyterhub-venv-latest.tar.gz -C /srv/vantage-nfs
+  rm -f /tmp/vantage-jupyterhub-venv-latest.tar.gz
   cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
   systemctl daemon-reload
