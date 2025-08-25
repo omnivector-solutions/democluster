@@ -87,6 +87,15 @@ runcmd:
   - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
   - snap start vantage-agent.start --enable
   - snap start jobbergate-agent.start --enable
+  - |
+    echo "JUPYTERHUB_VENV_DIR=/srv/vantage-nfs/vantage-jupyterhub" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_CLIENT_ID=$CLIENT_ID" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_CLIENT_SECRET=$CLIENT_SECRET" >> /etc/default/vantage-jupyterhub
+    echo "JUPYTERHUB_TOKEN=$JUPYTERHUB_TOKEN" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_BASE_URL=$OIDC_BASE_URL" >> /etc/default/vantage-jupyterhub
+    echo "TUNNEL_API_URL=$TUNNEL_API_URL" >> /etc/default/vantage-jupyterhub
+    echo "VANTAGE_API_URL=$BASE_API_URL" >> /etc/default/vantage-jupyterhub
+  - systemctl start vantage-jupyterhub --enable
 EOF
 
 mkdir -p $HOME/democluster || true
