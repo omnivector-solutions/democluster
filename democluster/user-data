@@ -277,8 +277,12 @@ runcmd:
 - systemctl stop slurmdbd
 - systemctl stop slurmctld
 - systemctl stop slurmd
-- mkdir -p /srv/vantage-nfs
-- chmod 777 /srv/vantage-nfs
-- wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | gunzip | tar xvf - -C /srv/vantage-nfs
-- cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
-- systemctl daemon-reload
+- |
+  mkdir -p /srv/vantage-nfs
+  chmod -R 777 /srv/vantage-nfs
+  cd /tmp
+  wget -q https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz
+  tar -xzf vantage-jupyterhub-venv-latest.tar.gz -C /srv/vantage-nfs
+  rm -f vantage-jupyterhub-venv-latest.tar.gz
+  cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
+  systemctl daemon-reload
