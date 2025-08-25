@@ -88,8 +88,6 @@ runcmd:
   - snap start vantage-agent.start --enable
   - snap start jobbergate-agent.start --enable
   - |
-  mkdir -p /srv/vantage-nfs
-  chmod -R 777 /srv/vantage-nfs
   wget -O /tmp/vantage-jupyterhub-venv-latest.tar.gz https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz
   tar -xzvf /tmp/vantage-jupyterhub-venv-latest.tar.gz -C /srv/vantage-nfs
   rm -f /tmp/vantage-jupyterhub-venv-latest.tar.gz

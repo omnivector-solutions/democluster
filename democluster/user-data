@@ -276,3 +276,5 @@ runcmd:
 - systemctl stop slurmdbd
 - systemctl stop slurmctld
 - systemctl stop slurmd
+- mkdir -p /srv/vantage-nfs
+- chmod -R 777 /srv/vantage-nfs
