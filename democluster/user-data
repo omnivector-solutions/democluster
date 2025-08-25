@@ -229,6 +229,7 @@ packages:
 - influxdb-client
 - parallel
 - wget
+- autossh
 
 snap:
   commands:

@@ -56,7 +56,7 @@ source "qemu" "stage0" {
   boot_wait      = "2s"
   cpus           = 4
   disk_image     = true
-  disk_size      = "8G"
+  disk_size      = "5G"
   format         = "qcow2"
   headless       = true
   http_directory = var.http_directory

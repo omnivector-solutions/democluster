@@ -156,7 +156,6 @@ runcmd:
     echo "TUNNEL_API_URL=$TUNNEL_API_URL" >> /etc/default/vantage-jupyterhub
     echo "VANTAGE_API_URL=$BASE_API_URL" >> /etc/default/vantage-jupyterhub
   - systemctl start vantage-jupyterhub --enable
-
 EOF
 
   mkdir -p $HOME/democluster/tmp
@@ -164,7 +163,7 @@ EOF
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4G \
   -d8G \
-  --mount=$HOME/democluster:/nfs/mnt \
+  --mount=$HOME/democluster:/srv/vantage-nfs \
   -n democluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4\}-4[0-9a-f]\{3\}-[89abAB][0-9a-f]\{3\}-[0-9a-f]\{12\}//'` \
   $IMAGE_ORIGIN \
   --cloud-init -
