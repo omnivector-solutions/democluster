@@ -1,21 +1,80 @@
+#!/bin/bash
+
+CLIENT_ID=$1
+CLIENT_SECRET=$2
+ENV=$3
+
+
+# Check if CLIENT_ID and CLIENT_SECRET are provided.
+if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ]; then
+  echo "Please provide the CLIENT_ID and CLIENT_SECRET as command-line arguments."
+  exit 1
+fi
+
+# Check if ENV is set to a valid value
+if [ -n "$ENV" ]; then
+  if [[ "$ENV" != "staging" && "$ENV" != "qa" && "$ENV" != "dev" ]]; then
+    echo "Invalid ENV value. It must be one of 'staging', 'qa' or 'dev'."
+    exit 1
+  fi
+fi
+
+# Set the environment to the empty string if not supplied
+if [ -z $ENV ]; then
+    BASE_API_URL="https://apis.vantagecompute.ai"
+    TUNNEL_API_URL="https://tunnel.vantagecompute.ai"
+    OIDC_DOMAIN="auth.vantagecompute.ai/realms/vantage"
+    OIDC_BASE_URL="https://$(echo $OIDC_DOMAIN | cut -d'/' -f1)"
+    SNAP_CHANNEL="stable"
+else
+    BASE_API_URL="https://apis.${ENV}.vantagecompute.ai"
+    TUNNEL_API_URL="https://tunnel.${ENV}.vantagecompute.ai"
+    OIDC_DOMAIN="auth.${ENV}.vantagecompute.ai/realms/vantage"
+    OIDC_BASE_URL="https://$(echo $OIDC_DOMAIN | cut -d'/' -f1)"
+
+    if [ "$ENV" == "dev" ]; then
+        SNAP_CHANNEL="edge"
+    elif [ "$ENV" == "qa" ]; then
+        SNAP_CHANNEL="beta"
+    else
+        SNAP_CHANNEL="candidate"
+    fi
+fi
+
+cat <<EOF > /tmp/cloud-init.yaml
 #cloud-config
 users:
 - name: root
   lock_passwd: false
   hashed_passwd: "$6$canonical.$0zWaW71A9ke9ASsaOcFTdQ2tx1gSmLxMPrsH0rF0Yb.2AEKNPV1lrF94n6YuPJmnUy2K2/JSDtxuiBDey6Lpa/"
   ssh_redirect_user: false
+
+- default
+
 - name: slurm
   system: true
   uid: 64031
   no_create_home: true
+  home: /nonexistent
   shell: /usr/sbin/nologin
-- name: ubuntu
-  plain_text_passwd: 'ubuntu'
-  shell: /bin/bash
-  lock_passwd: false
-  gecos: Ubuntu
-  groups: [ adm, cdrom, dip, lxd, sudo ]
-  sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
+  group: slurm
+
+groups:
+- name: slurm
+  gid: 64031
+  members:
+    - slurm
+
+system_info:
+  default_user:
+    name: ubuntu
+    plain_text_passwd: 'ubuntu'
+    home: /lhome/ubuntu
+    shell: /bin/bash
+    lock_passwd: false
+    gecos: Ubuntu
+    groups: [ adm, cdrom, dip, lxd, sudo ]
+    sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
 
 ssh_pwauth: True
 disable_root: false
@@ -71,7 +130,9 @@ packages:
 
 snap:
   commands:
-    0: snap install multipass-sshfs
+    0: snap install vantage-agent --channel=$SNAP_CHANNEL --classic
+    1: snap install jobbergate-agent --channel=$SNAP_CHANNEL --classic
+    2: snap install multipass-sshfs
 
 write_files:
 - path: /etc/slurm/oci.conf
@@ -111,7 +172,7 @@ write_files:
     SlurmdSpoolDir=/var/lib/slurm/slurmd
     StateSaveLocation=/var/lib/slurm/checkpoint
 
-    PluginDir=/opt/slurm/software/lib/slurm
+    PluginDir=/opt/slurm/software/lib/x86_64-linux-gnu/slurm-wlm/
 
     PlugStackConfig=/etc/slurm/plugstack.conf
 
@@ -172,7 +233,7 @@ write_files:
 
     AuthType=auth/slurm
     SlurmUser=slurm
-    PluginDir=/opt/slurm/software/lib/slurm
+    PluginDir=/opt/slurm/software/lib/x86_64-linux-gnu/slurm-wlm/
     PidFile=/var/run/slurmdbd.pid
     LogFile=/var/log/slurm/slurmdbd.log
 
@@ -197,7 +258,7 @@ write_files:
     ProfileInfluxDBRTPolicy=three_days
 
 - path: /usr/lib/systemd/system/slurmctld.service
-  owner: root:root
+  owner: slurm:slurm
   permissions: '0644'
   content: |
     [Unit]
@@ -224,7 +285,7 @@ write_files:
 
 
 - path: /usr/lib/systemd/system/slurmdbd.service
-  owner: root:root
+  owner: slurm:slurm
   permissions: '0644'
   content: |
     [Unit]
@@ -293,61 +354,100 @@ write_files:
     # Slurm system-wide environment
     export SLURM_CONF=/etc/slurm/slurm.conf
     export PATH=$PATH:/opt/slurm/software/bin:/opt/slurm/software/sbin
-
-bootcmd:
-- mkdir /run/packer_backup
-- mkdir /run/packer_backup/etc
-- mkdir /run/packer_backup/etc/apt
-- mkdir /run/packer_backup/etc/ssh
-- cp --preserve /etc/apt/sources.list /run/packer_backup/etc/apt/
-- cp --preserve /etc/ssh/sshd_config /run/packer_backup/etc/ssh/
-
+ 
 runcmd:
-- sed -i -e '/^[#]*PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
-- systemctl restart ssh
-# MySQL
-- systemctl start mysql.service
-- |
-  mysql << END
+  - sed -i -e '/^[#]*PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
+  - systemctl restart ssh
+  # MySQL
+  - systemctl start mysql.service
+  - |
+    mysql << END
 
-  CREATE USER 'slurm'@'localhost' IDENTIFIED BY 'rats';
-  CREATE DATABASE IF NOT EXISTS slurm DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
-  GRANT ALL PRIVILEGES ON  slurm.* TO 'slurm'@'localhost';
+    CREATE USER 'slurm'@'localhost' IDENTIFIED BY 'rats';
+    CREATE DATABASE IF NOT EXISTS slurm DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+    GRANT ALL PRIVILEGES ON  slurm.* TO 'slurm'@'localhost';
 
-  END
+    END
+  # InfluxDB
+  - systemctl start influxdb.service
+  - influx -execute "CREATE USER slurm WITH PASSWORD 'rats'"
+  - influx -execute 'CREATE DATABASE "slurm-job-metrics"'
+  - influx -execute 'GRANT ALL ON "slurm-job-metrics" TO "slurm"'
+  - influx -execute 'CREATE RETENTION POLICY "three_days" ON "slurm-job-metrics" DURATION 3d REPLICATION 1 DEFAULT'
+  # Slurm Setup
+  - mkdir -p /etc/slurm
+  - mkdir -p /opt/slurm
+  - mkdir -p /var/lib/slurm
+  - mkdir -p /var/lib/slurmd
+  - mkdir -p /var/log/slurm
+  # create slurm.key
+  - openssl rand 2048 | base64 | tr -d '\n' > /etc/slurm/slurm.key
+  # Chown conf files
+  - chown slurm /etc/slurm/slurmdbd.conf
+  - chown slurm /etc/slurm/slurm.conf
+  - chown slurm /etc/slurm/slurm.key
+  - chmod 600 /etc/slurm/slurm.key
+  # Update configuration files
+  - sed -i "s|@HEADNODE_HOSTNAME@|\$(hostname)|g" /etc/slurm/slurmdbd.conf
+  - sed -i "s|@HEADNODE_ADDRESS@|\$(hostname -I | awk '{print \$1}')|g" /etc/slurm/slurm.conf
+  - sed -i "s|@HEADNODE_HOSTNAME@|\$(hostname)|g" /etc/slurm/slurm.conf
 
-# Configure library paths for SLURM Spack dependencies
-- |
-  echo "/opt/slurm/software/mysql-connector-c-6.1.11-whv2blr/lib" > /etc/ld.so.conf.d/slurm-spack.conf
-  # Create symlink for libmysqlclient.so.21 to point to the available version 18
-  cd /opt/slurm/software/mysql-connector-c-6.1.11-whv2blr/lib
-  ln -sf libmysqlclient.so.18 libmysqlclient.so.21
-  ldconfig
+#  - snap set vantage-agent base-api-url=$BASE_API_URL
+#  - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
+#  - snap set vantage-agent oidc-client-id=$CLIENT_ID
+#  - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
+#  - snap set vantage-agent task-jobs-interval-seconds=10
+#  - snap set jobbergate-agent base-api-url=$BASE_API_URL
+#  - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
+#  - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
+#  - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
+#  - snap set jobbergate-agent task-jobs-interval-seconds=10
+#  - snap set jobbergate-agent x-slurm-user-name=ubuntu
+#  - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
+#  - snap start vantage-agent.daemon --enable
+#  - snap start jobbergate-agent.daemon --enable
+  # Vantage Jupyterhub Setup
+  - mkdir -p /srv/vantage-nfs
+  - chmod -R 777 /srv/vantage-nfs
+  - |
+    echo "JUPYTERHUB_VENV_DIR=/srv/vantage-nfs/vantage-jupyterhub" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_CLIENT_ID=$CLIENT_ID" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_CLIENT_SECRET=$CLIENT_SECRET" >> /etc/default/vantage-jupyterhub
+    echo "JUPYTERHUB_TOKEN=$JUPYTERHUB_TOKEN" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_BASE_URL=$OIDC_BASE_URL" >> /etc/default/vantage-jupyterhub
+    echo "TUNNEL_API_URL=$TUNNEL_API_URL" >> /etc/default/vantage-jupyterhub
+    echo "VANTAGE_API_URL=$BASE_API_URL" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_DOMAIN=$OIDC_DOMAIN" >> /etc/default/vantage-jupyterhub
+EOF
 
-# InfluxDB
-- systemctl start influxdb.service
-- influx -execute "CREATE USER slurm WITH PASSWORD 'rats'"
-- influx -execute 'CREATE DATABASE "slurm-job-metrics"'
-- influx -execute 'GRANT ALL ON "slurm-job-metrics" TO "slurm"'
-- influx -execute 'CREATE RETENTION POLICY "three_days" ON "slurm-job-metrics" DURATION 3d REPLICATION 1 DEFAULT'
-- mkdir -p /etc/slurm
-- mkdir -p /opt/slurm
-- mkdir -p /var/lib/slurm
-- mkdir -p /var/lib/slurmd
-- mkdir -p /var/log/slurm
-# Create slurm.key
-- openssl rand 2048 | base64 | tr -d '\n' > /etc/slurm/slurm.key
-# Chown conf files
-- chown slurm /etc/slurm/slurmdbd.conf
-- chown slurm /etc/slurm/slurm.conf
-- chown slurm /etc/slurm/slurm.key
-- chmod 600 /etc/slurm/slurm.key
-- wget -qO- https://vantage-compute-public-assets.s3.us-east-1.amazonaws.com/slurm/23.11/slurm-latest.tar.gz | tar --no-same-owner --no-same-permissions --touch -xz -C /opt/slurm
-- systemctl daemon-reload
-# Vantage Jupyterhub
-- mkdir -p /srv/vantage-nfs/working
-- chmod -R 777 /srv/vantage-nfs
-- wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | tar --dereference --no-same-owner --no-same-permissions --touch -xz -C /srv/vantage-nfs
-- mkdir -p /srv/vantage-nfs/working
-- cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
-- systemctl daemon-reload
+mkdir -p $HOME/democluster/tmp
+mkdir -p $HOME/democluster/vantage-jupyterhub-venv
+mkdir -p $HOME/democluster/slurm-software
+chmod -R 777 $HOME/democluster
+
+instance_name=democluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4\}-4[0-9a-f]\{3\}-[89abAB][0-9a-f]\{3\}-[0-9a-f]\{12\}//'`
+
+cat /tmp/cloud-init.yaml | multipass launch --verbose -c$(nproc) \
+-m4GB \
+-d8GB \
+--mount $HOME/democluster/vantage-jupyterhub-venv:/srv/vantage-nfs \
+--mount $HOME/democluster/slurm-software:/opt/slurm \
+--mount $HOME/democluster/tmp:/nfs/mnt \
+-n $instance_name \
+24.04 \
+--cloud-init -
+
+rm -f /tmp/cloud-init.yaml
+
+
+multipass exec $instance_name -- sudo bash -c "wget -qO- https://vantage-compute-public-assets.s3.us-east-1.amazonaws.com/slurm/23.11/slurm-latest.tar.gz | tar --dereference --no-same-owner --no-same-permissions --touch -xz -C /opt/slurm"
+multipass exec $instance_name -- sudo bash -c "systemctl daemon-reload"
+multipass exec $instance_name -- sudo bash -c "systemctl start slurmdbd"
+multipass exec $instance_name -- sudo bash -c "systemctl start slurmctld"
+multipass exec $instance_name -- sudo bash -c "systemctl start slurmd"
+multipass exec $instance_name -- sudo bash -c "scontrol update NodeName=\$(hostname) State=RESUME"
+
+multipass exec $instance_name -- sudo bash -c "wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | tar --dereference --no-same-owner --no-same-permissions --touch -xz -C /srv/vantage-nfs"
+multipass exec $instance_name -- sudo bash -c "mkdir -p /srv/vantage-nfs/working"
+multipass exec $instance_name -- sudo bash -c "cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service && systemctl daemon-reload"
+multipass exec $instance_name -- sudo bash -c "systemctl start vantage-jupyterhub"
