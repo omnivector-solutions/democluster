@@ -68,6 +68,7 @@ packages:
 - influxdb-client
 - wget
 - autossh
+- lmod
 
 snap:
   commands:
@@ -102,8 +103,8 @@ write_files:
     AuthType=auth/slurm
     CredType=auth/slurm
 
-    SlurmctldPidFile=/var/run/slurmctld.pid
-    SlurmdPidFile=/var/run/slurmd.pid
+    SlurmctldPidFile=/run/slurmctld/slurmctld.pid
+    SlurmdPidFile=/run/slurmd/slurmd.pid
 
     SlurmctldLogFile=/var/log/slurm/slurmctld.log
     SlurmdLogFile=/var/log/slurm/slurmd.log
@@ -173,7 +174,7 @@ write_files:
     AuthType=auth/slurm
     SlurmUser=slurm
     PluginDir=/opt/slurm/software/lib/slurm
-    PidFile=/var/run/slurmdbd.pid
+    PidFile=/run/slurmdbd/slurmdbd.pid
     LogFile=/var/log/slurm/slurmdbd.log
 
     StorageType=accounting_storage/mysql
@@ -235,13 +236,13 @@ write_files:
     Documentation=man:slurmdbd(8)
 
     [Service]
-    Type=notify
+    Type=simple
     EnvironmentFile=-/etc/default/slurmdbd
     User=slurm
     Group=slurm
     RuntimeDirectory=slurmdbd
     RuntimeDirectoryMode=0755
-    ExecStart=/opt/slurm/software/sbin/slurmdbd -D -s $SLURMDBD_OPTIONS
+    ExecStart=/opt/slurm/software/sbin/slurmdbd -D -s
     ExecReload=/bin/kill -HUP $MAINPID
     LimitNOFILE=65536
     TasksMax=infinity
@@ -262,6 +263,8 @@ write_files:
 
     [Service]
     Type=notify
+    RuntimeDirectory=slurm
+    RuntimeDirectoryMode=0755
     RuntimeDirectory=slurm
     RuntimeDirectoryMode=0755
     EnvironmentFile=-/etc/default/slurmd
@@ -294,6 +297,24 @@ write_files:
     export SLURM_CONF=/etc/slurm/slurm.conf
     export PATH=$PATH:/opt/slurm/software/bin:/opt/slurm/software/sbin
 
+- path: /etc/tmpfiles.d/slurmdbd.conf
+  owner: root:root
+  permissions: '0644'
+  content: |
+    d /run/slurmdbd 0755 slurm slurm -
+
+- path: /etc/tmpfiles.d/slurm.conf
+  owner: root:root
+  permissions: '0644'
+  content: |
+    d /run/slurm 0755 root root -
+
+- path: /etc/tmpfiles.d/slurmctld.conf
+  owner: root:root
+  permissions: '0644'
+  content: |
+    d /run/slurmctld 0755 slurm slurm -
+
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
@@ -307,6 +328,16 @@ runcmd:
 - systemctl restart ssh
 # MySQL
 - systemctl start mysql.service
+# Configure MySQL for SLURM
+- |
+  cat >> /etc/mysql/mysql.conf.d/slurm.cnf << EOF
+  [mysqld]
+  innodb_lock_wait_timeout = 900
+  innodb_log_file_size = 64M
+  innodb_flush_log_at_trx_commit = 1
+  innodb_file_per_table = 1
+  EOF
+- systemctl restart mysql.service
 - |
   mysql << END
 
@@ -330,6 +361,7 @@ runcmd:
 # Create slurm.key
 - openssl rand 2048 | base64 | tr -d '\n' > /etc/slurm/slurm.key
 # Chown conf files
+- chown -R slurm:slurm /var/log/slurm
 - chown slurm /etc/slurm/slurmdbd.conf
 - chown slurm /etc/slurm/slurm.conf
 - chown slurm /etc/slurm/slurm.key
