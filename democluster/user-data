@@ -157,12 +157,6 @@ write_files:
     NodeSet=compute Feature=compute
     PartitionName=compute Nodes=compute
 
-    # Node Configurations
-    NodeName=@HEADNODE_HOSTNAME@ NodeAddr=@HEADNODE_ADDRESS@ CPUs=@CPUs@ ThreadsPerCore=@THREADS_PER_CORE@ CoresPerSocket=@CORES_PER_SOCKET@ Sockets=@SOCKETS@ RealMemory=@REAL_MEMORY@
-
-    # Partition Configurations
-    PartitionName=compute Nodes=@HEADNODE_HOSTNAME@ MaxTime=INFINITE State=UP Default=Yes
-
 
 - path: /etc/slurm/slurmdbd.conf
   owner: root:root
