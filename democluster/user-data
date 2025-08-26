@@ -316,14 +316,6 @@ runcmd:
 
   END
 
-# Configure library paths for SLURM Spack dependencies
-- |
-  echo "/opt/slurm/software/mysql-connector-c-6.1.11-whv2blr/lib" > /etc/ld.so.conf.d/slurm-spack.conf
-  # Create symlink for libmysqlclient.so.21 to point to the available version 18
-  cd /opt/slurm/software/mysql-connector-c-6.1.11-whv2blr/lib
-  ln -sf libmysqlclient.so.18 libmysqlclient.so.21
-  ldconfig
-
 # InfluxDB
 - systemctl start influxdb.service
 - influx -execute "CREATE USER slurm WITH PASSWORD 'rats'"
