@@ -259,8 +259,6 @@ write_files:
     Type=notify
     RuntimeDirectory=slurm
     RuntimeDirectoryMode=0755
-    RuntimeDirectory=slurm
-    RuntimeDirectoryMode=0755
     EnvironmentFile=-/etc/default/slurmd
     ExecStart=/opt/slurm/software/sbin/slurmd --systemd -Z -F compute $SLURMD_OPTIONS
     ExecReload=/bin/kill -HUP $MAINPID
@@ -309,6 +307,16 @@ write_files:
   content: |
     d /run/slurmctld 0755 slurm slurm -
 
+- path: /etc/mysql/mysql.conf.d/slurm.cnf
+  owner: root:root
+  permissions: '0644'
+  content: |
+    [mysqld]
+    innodb_lock_wait_timeout = 900
+    innodb_log_file_size = 64M
+    innodb_flush_log_at_trx_commit = 1
+    innodb_file_per_table = 1
+
 bootcmd:
 - mkdir /run/packer_backup
 - mkdir /run/packer_backup/etc
@@ -322,16 +330,6 @@ runcmd:
 - systemctl restart ssh
 # MySQL
 - systemctl start mysql.service
-# Configure MySQL for SLURM
-- |
-  cat >> /etc/mysql/mysql.conf.d/slurm.cnf << EOF
-  [mysqld]
-  innodb_lock_wait_timeout = 900
-  innodb_log_file_size = 64M
-  innodb_flush_log_at_trx_commit = 1
-  innodb_file_per_table = 1
-  EOF
-- systemctl restart mysql.service
 - |
   mysql << END
 
@@ -356,6 +354,7 @@ runcmd:
 - openssl rand 2048 | base64 | tr -d '\n' > /etc/slurm/slurm.key
 # Chown conf files
 - chown -R slurm:slurm /var/log/slurm
+- chown -R slurm:slurm /var/lib/slurm
 - chown slurm /etc/slurm/slurmdbd.conf
 - chown slurm /etc/slurm/slurm.conf
 - chown slurm /etc/slurm/slurm.key
@@ -369,3 +368,4 @@ runcmd:
 - mkdir -p /srv/vantage-nfs/working
 - cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
 - systemctl daemon-reload
+- 
