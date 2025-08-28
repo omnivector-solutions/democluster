@@ -2,7 +2,8 @@
 
 CLIENT_ID=$1
 CLIENT_SECRET=$2
-ENV=$3
+JUPYTERHUB_TOKEN=$3
+ENV=$4
 
 
 # Check if CLIENT_ID and CLIENT_SECRET are provided.
@@ -43,11 +44,52 @@ fi
 
 cat <<EOF > /tmp/cloud-init.yaml
 #cloud-config
+snap:
+  commands:
+    0: snap install vantage-agent --channel=$SNAP_CHANNEL --classic
+    1: snap install jobbergate-agent --channel=$SNAP_CHANNEL --classic
+
 runcmd:
 # Update slurm configuration files
 - sed -i "s|@HEADNODE_HOSTNAME@|\$(hostname)|g" /etc/slurm/slurmdbd.conf
 - sed -i "s|@HEADNODE_ADDRESS@|\$(hostname -I | awk '{print \$1}')|g" /etc/slurm/slurm.conf
 - sed -i "s|@HEADNODE_HOSTNAME@|\$(hostname)|g" /etc/slurm/slurm.conf
+- |
+  cpu_info=\$(lscpu -J | jq)
+  CPUs=\$(echo \$cpu_info | jq -r '.lscpu | .[] | select(.field == "CPU(s):") | .data')
+  sed -i "s|@CPUs@|\$CPUs|g" /etc/slurm/slurm.conf
+
+  THREADS_PER_CORE=\$(echo \$cpu_info | jq -r '.lscpu | .[] | select(.field == "Thread(s) per core:") | .data')
+  sed -i "s|@THREADS_PER_CORE@|\$THREADS_PER_CORE|g" /etc/slurm/slurm.conf
+
+  CORES_PER_SOCKET=\$(echo \$cpu_info | jq -r '.lscpu | .[] | select(.field == "Core(s) per socket:") | .data')
+  sed -i "s|@CORES_PER_SOCKET@|\$CORES_PER_SOCKET|g" /etc/slurm/slurm.conf
+
+  SOCKETS=\$(echo \$cpu_info | jq -r '.lscpu | .[] | select(.field == "Socket(s):") | .data')
+  sed -i "s|@SOCKETS@|\$SOCKETS|g" /etc/slurm/slurm.conf
+
+  REAL_MEMORY=\$(free -m | grep -oP '\\d+' | head -n 1)
+  sed -i "s|@REAL_MEMORY@|\$REAL_MEMORY|g" /etc/slurm/slurm.conf
+
+- systemctl restart slurmdbd
+- sleep 10
+- systemctl restart slurmctld
+- systemctl restart slurmd
+- scontrol update NodeName=\$(hostname) State=RESUME
+- snap set vantage-agent base-api-url=$BASE_API_URL
+- snap set vantage-agent oidc-domain=$OIDC_DOMAIN
+- snap set vantage-agent oidc-client-id=$CLIENT_ID
+- snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
+- snap set vantage-agent task-jobs-interval-seconds=10
+- snap set jobbergate-agent base-api-url=$BASE_API_URL
+- snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
+- snap set jobbergate-agent oidc-client-id=$CLIENT_ID
+- snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
+- snap set jobbergate-agent task-jobs-interval-seconds=10
+- snap set jobbergate-agent x-slurm-user-name=ubuntu
+- snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
+- snap start vantage-agent.start --enable
+- snap start jobbergate-agent.start --enable
 - |
   echo "JUPYTERHUB_VENV_DIR=/srv/vantage-nfs/vantage-jupyterhub" >> /etc/default/vantage-jupyterhub
   echo "OIDC_CLIENT_ID=$CLIENT_ID" >> /etc/default/vantage-jupyterhub
@@ -77,16 +119,3 @@ file://`pwd`/democluster/final/democluster.img \
 --cloud-init -
 
 rm -f /tmp/cloud-init.yaml
-
-
-#multipass exec $instance_name -- sudo bash -c "wget -qO- https://vantage-compute-public-assets.s3.us-east-1.amazonaws.com/slurm/23.11/slurm-latest.tar.gz | tar --no-same-owner --no-same-permissions --touch -xz -C /opt/slurm"
-#multipass exec $instance_name -- sudo bash -c "systemctl daemon-reload"
-#multipass exec $instance_name -- sudo bash -c "systemctl start slurmdbd"
-#multipass exec $instance_name -- sudo bash -c "systemctl start slurmctld"
-#multipass exec $instance_name -- sudo bash -c "systemctl start slurmd"
-#multipass exec $instance_name -- sudo bash -c "scontrol update NodeName=\$(hostname) State=RESUME"
-
-#multipass exec $instance_name -- sudo bash -c "wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | tar --dereference --no-same-owner --no-same-permissions --touch -xz -C /srv/vantage-nfs"
-#multipass exec $instance_name -- sudo bash -c "mkdir -p /srv/vantage-nfs/working"
-#multipass exec $instance_name -- sudo bash -c "cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service && systemctl daemon-reload"
-#ultipass exec $instance_name -- sudo bash -c "systemctl start vantage-jupyterhub"

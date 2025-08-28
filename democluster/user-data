@@ -153,9 +153,14 @@ write_files:
     AccountingStorageUser=slurm
     AccountingStoragePort=6839
 
+    # Node Configurations
+    NodeName=@HEADNODE_HOSTNAME@ NodeAddr=@HEADNODE_ADDRESS@ CPUs=@CPUs@ ThreadsPerCore=@THREADS_PER_CORE@ CoresPerSocket=@CORES_PER_SOCKET@ Sockets=@SOCKETS@ RealMemory=@REAL_MEMORY@
+
+    # Partition Configurations
+    PartitionName=compute Nodes=@HEADNODE_HOSTNAME@ MaxTime=INFINITE State=UP Default=Yes
+
     # Nodeset
     NodeSet=compute Feature=compute
-    PartitionName=compute Nodes=compute
 
 
 - path: /etc/slurm/slurmdbd.conf
@@ -257,10 +262,12 @@ write_files:
 
     [Service]
     Type=notify
-    RuntimeDirectory=slurm
+    User=root
+    Group=root
+    RuntimeDirectory=slurmd
     RuntimeDirectoryMode=0755
     EnvironmentFile=-/etc/default/slurmd
-    ExecStart=/opt/slurm/software/sbin/slurmd --systemd -Z -F compute $SLURMD_OPTIONS
+    ExecStart=/opt/slurm/software/sbin/slurmd --systemd -F compute $SLURMD_OPTIONS
     ExecReload=/bin/kill -HUP $MAINPID
     KillMode=process
     LimitNOFILE=131072
@@ -295,11 +302,11 @@ write_files:
   content: |
     d /run/slurmdbd 0755 slurm slurm -
 
-- path: /etc/tmpfiles.d/slurm.conf
+- path: /etc/tmpfiles.d/slurmd.conf
   owner: root:root
   permissions: '0644'
   content: |
-    d /run/slurm 0755 root root -
+    d /run/slurmd 0755 root root -
 
 - path: /etc/tmpfiles.d/slurmctld.conf
   owner: root:root
@@ -350,6 +357,7 @@ runcmd:
 - mkdir -p /var/lib/slurm
 - mkdir -p /var/lib/slurmd
 - mkdir -p /var/log/slurm
+- mkdir -p /var/spool/slurmd
 # Create slurm.key
 - openssl rand 2048 | base64 | tr -d '\n' > /etc/slurm/slurm.key
 # Chown conf files
@@ -360,6 +368,33 @@ runcmd:
 - chown slurm /etc/slurm/slurm.key
 - chmod 600 /etc/slurm/slurm.key
 - wget -qO- https://vantage-compute-public-assets.s3.us-east-1.amazonaws.com/slurm/23.11/slurm-latest.tar.gz | tar --no-same-owner --no-same-permissions --touch -xz -C /opt/slurm
+- |
+  for i in /opt/slurm/software/bin/sacct \
+    /opt/slurm/software/bin/sacctmgr \
+    /opt/slurm/software/bin/salloc \
+    /opt/slurm/software/bin/sattach \
+    /opt/slurm/software/bin/sbang \
+    /opt/slurm/software/bin/sbatch \
+    /opt/slurm/software/bin/sbcast \
+    /opt/slurm/software/bin/scancel \
+    /opt/slurm/software/bin/scontrol \
+    /opt/slurm/software/bin/scrontab \
+    /opt/slurm/software/bin/sdiag \
+    /opt/slurm/software/bin/sh5util \
+    /opt/slurm/software/bin/sinfo \
+    /opt/slurm/software/bin/sprio \
+    /opt/slurm/software/bin/squeue \
+    /opt/slurm/software/bin/sreport \
+    /opt/slurm/software/bin/srun \
+    /opt/slurm/software/bin/sshare \
+    /opt/slurm/software/bin/sstat \
+    /opt/slurm/software/bin/strigger \
+    /opt/slurm/software/sbin/slurmctld \
+    /opt/slurm/software/sbin/slurmd \
+    /opt/slurm/software/sbin/slurmdbd \
+    /opt/slurm/software/sbin/slurmrestd; do
+    ln -s $i /usr/bin/$(basename $i);
+  done
 - systemctl daemon-reload
 # Vantage Jupyterhub
 - mkdir -p /srv/vantage-nfs/working
@@ -368,4 +403,3 @@ runcmd:
 - mkdir -p /srv/vantage-nfs/working
 - cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
 - systemctl daemon-reload
-- 
