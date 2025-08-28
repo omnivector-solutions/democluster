@@ -71,6 +71,8 @@ runcmd:
   REAL_MEMORY=\$(free -m | grep -oP '\\d+' | head -n 1)
   sed -i "s|@REAL_MEMORY@|\$REAL_MEMORY|g" /etc/slurm/slurm.conf
 
+- mkdir -p /srv/vantage-nfs/logs
+
 - systemctl restart slurmdbd
 - sleep 10
 - systemctl restart slurmctld
@@ -112,7 +114,7 @@ instance_name=democluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4
 
 cat /tmp/cloud-init.yaml | multipass launch --verbose -c$(nproc) \
 -m4GB \
--d8GB \
+-d10GB \
 --mount $HOME/democluster/tmp:/nfs/mnt \
 -n $instance_name \
 file://`pwd`/democluster/final/democluster.img \

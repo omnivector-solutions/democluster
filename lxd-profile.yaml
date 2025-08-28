@@ -9,7 +9,7 @@ config:
     apt:
       sources:
         packer.list:
-          source: deb [arch=amd64] https://apt.releases.hashicorp.com jammy main
+          source: deb [arch=amd64] https://apt.releases.hashicorp.com noble main
           key: |
             -----BEGIN PGP PUBLIC KEY BLOCK-----
             
@@ -89,9 +89,9 @@ config:
 devices:
   eth0:
     name: eth0
-    parent: "eno1.7-br0"
-    type: nic
     nictype: bridged
+    parent: eno1.7-br0
+    type: nic
   root:
     path: /
     pool: default
