@@ -352,6 +352,7 @@ runcmd:
 - influx -execute 'CREATE DATABASE "slurm-job-metrics"'
 - influx -execute 'GRANT ALL ON "slurm-job-metrics" TO "slurm"'
 - influx -execute 'CREATE RETENTION POLICY "three_days" ON "slurm-job-metrics" DURATION 3d REPLICATION 1 DEFAULT'
+# Slurm
 - mkdir -p /etc/slurm
 - mkdir -p /opt/slurm
 - mkdir -p /var/lib/slurm
@@ -368,6 +369,7 @@ runcmd:
 - chown slurm /etc/slurm/slurm.key
 - chmod 600 /etc/slurm/slurm.key
 - wget -qO- https://vantage-compute-public-assets.s3.us-east-1.amazonaws.com/slurm/23.11/slurm-latest.tar.gz | tar --no-same-owner --no-same-permissions --touch -xz -C /opt/slurm
+# Link binaries
 - |
   for i in /opt/slurm/software/bin/sacct \
     /opt/slurm/software/bin/sacctmgr \
@@ -393,13 +395,16 @@ runcmd:
     /opt/slurm/software/sbin/slurmd \
     /opt/slurm/software/sbin/slurmdbd \
     /opt/slurm/software/sbin/slurmrestd; do
-    ln -s $i /usr/bin/$(basename $i);
+    if [[ "$i" == *"/sbin/"* && ! -e /usr/sbin/$(basename $i) ]]; then
+      ln -s $i /usr/sbin/$(basename $i);
+    else
+      ln -s $i /usr/sbin/$(basename $i);
+    fi
   done
-- systemctl daemon-reload
 # Vantage Jupyterhub
 - mkdir -p /srv/vantage-nfs/working
+- mkdir -p /srv/vantage-nfs/logs
 - chmod -R 777 /srv/vantage-nfs
 - wget -qO- https://vantage-compute-public-assets.s3.amazonaws.com/vantage-jupyterhub/vantage-jupyterhub-venv-latest.tar.gz | tar --dereference --no-same-owner --no-same-permissions --touch -xz -C /srv/vantage-nfs
-- mkdir -p /srv/vantage-nfs/working
 - cp /srv/vantage-nfs/vantage-jupyterhub/vantage-jupyterhub.service /usr/lib/systemd/system/vantage-jupyterhub.service
 - systemctl daemon-reload
