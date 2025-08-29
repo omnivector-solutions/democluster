@@ -81,11 +81,16 @@ launch_instance () {
   # Set the environment to the empty string if not supplied
   if [ -z $ENV ]; then
       BASE_API_URL="https://apis.vantagecompute.ai"
+      TUNNEL_API_URL="https://tunnel.vantagecompute.ai"
       OIDC_DOMAIN="auth.vantagecompute.ai/realms/vantage"
+      OIDC_BASE_URL="https://$(echo $OIDC_DOMAIN | cut -d'/' -f1)"
       SNAP_CHANNEL="stable"
   else
       BASE_API_URL="https://apis.${ENV}.vantagecompute.ai"
+      TUNNEL_API_URL="https://tunnel.${ENV}.vantagecompute.ai"
       OIDC_DOMAIN="auth.${ENV}.vantagecompute.ai/realms/vantage"
+      OIDC_BASE_URL="https://$(echo $OIDC_DOMAIN | cut -d'/' -f1)"
+
       if [ "$ENV" == "dev" ]; then
           SNAP_CHANNEL="edge"
       elif [ "$ENV" == "qa" ]; then
@@ -124,33 +129,41 @@ runcmd:
 
     REAL_MEMORY=\$(free -m | grep -oP '\\d+' | head -n 1)
     sed -i "s|@REAL_MEMORY@|\$REAL_MEMORY|g" /etc/slurm/slurm.conf
-  - systemctl start slurmrestd
   - systemctl restart slurmdbd
-  - systemctl restart slurmd
   - sleep 30
   - systemctl restart slurmctld
+  - systemctl restart slurmd
   - scontrol update NodeName=\$(hostname) State=RESUME
   - snap set vantage-agent base-api-url=$BASE_API_URL
   - snap set vantage-agent oidc-domain=$OIDC_DOMAIN
   - snap set vantage-agent oidc-client-id=$CLIENT_ID
   - snap set vantage-agent oidc-client-secret=$CLIENT_SECRET
-  - snap set vantage-agent task-jobs-interval-seconds=30
+  - snap set vantage-agent task-jobs-interval-seconds=10
   - snap set jobbergate-agent base-api-url=$BASE_API_URL
   - snap set jobbergate-agent oidc-domain=$OIDC_DOMAIN
   - snap set jobbergate-agent oidc-client-id=$CLIENT_ID
   - snap set jobbergate-agent oidc-client-secret=$CLIENT_SECRET
-  - snap set jobbergate-agent task-jobs-interval-seconds=30
-  - snap set jobbergate-agent x-slurm-user-name=root
+  - snap set jobbergate-agent task-jobs-interval-seconds=10
   - snap set jobbergate-agent influx-dsn=influxdb://slurm:rats@localhost:8086/slurm-job-metrics
-  - snap start vantage-agent.start
-  - snap start jobbergate-agent.start
+  - snap start vantage-agent.start --enable
+  - snap start jobbergate-agent.start --enable
+  - |
+    echo "JUPYTERHUB_VENV_DIR=/srv/vantage-nfs/vantage-jupyterhub" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_CLIENT_ID=$CLIENT_ID" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_CLIENT_SECRET=$CLIENT_SECRET" >> /etc/default/vantage-jupyterhub
+    echo "JUPYTERHUB_TOKEN=$JUPYTERHUB_TOKEN" >> /etc/default/vantage-jupyterhub
+    echo "OIDC_BASE_URL=$OIDC_BASE_URL" >> /etc/default/vantage-jupyterhub
+    echo "TUNNEL_API_URL=$TUNNEL_API_URL" >> /etc/default/vantage-jupyterhub
+    echo "VANTAGE_API_URL=$BASE_API_URL" >> /etc/default/vantage-jupyterhub
+  - systemctl start vantage-jupyterhub --enable
 EOF
 
   mkdir -p $HOME/democluster/tmp
 
   cat /tmp/cloud-init.yaml | multipass launch -c$(nproc) \
   -m4G \
-  --mount=$HOME/democluster:/home/ubuntu/democluster \
+  -d8G \
+  --mount=$HOME/democluster:/srv/vantage-nfs \
   -n democluster-`echo "$CLIENT_ID" | sed 's/-[0-9a-f]\{8\}-[0-9a-f]\{4\}-4[0-9a-f]\{3\}-[89abAB][0-9a-f]\{3\}-[0-9a-f]\{12\}//'` \
   $IMAGE_ORIGIN \
   --cloud-init -
